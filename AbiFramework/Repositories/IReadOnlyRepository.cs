@@ -5,7 +5,7 @@ using AbiFramework.Entities;
 
 namespace AbiFramework.Repositories
 {
-    public interface IReadOnlyRepository<TEntity, TPrimaryKey>
+    public interface IReadOnlyRepository<TEntity, in TPrimaryKey>
        where TEntity : IEntity<TPrimaryKey>
     {
         IQueryable<TEntity> All();

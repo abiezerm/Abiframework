@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Threading.Tasks;
 
 namespace AbiFramework.UnitsOfWork
 {
@@ -17,6 +18,11 @@ namespace AbiFramework.UnitsOfWork
         /// Commits transaction and closes database connection.
         /// </summary>
         void Commit();
+
+        /// <summary>
+        /// Save changes to the database.
+        /// </summary>
+        Task CommitAsync();
 
         /// <summary>
         /// Rollbacks transaction and closes database connection.
