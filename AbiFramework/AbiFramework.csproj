@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>DDD and TDD framework for .NET</Description>
-    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionPrefix>3.0.2</VersionPrefix>
     <Authors>Abiezer Matos</Authors>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>AbiFramework</AssemblyName>

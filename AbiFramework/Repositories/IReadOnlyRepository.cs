@@ -10,6 +10,7 @@ namespace AbiFramework.Repositories
     {
         IQueryable<TEntity> All();
         TEntity Find(TPrimaryKey primaryKey);
+        TEntity FindBy(Expression<Func<TEntity, bool>> expression);
         IQueryable<TEntity> FilterBy(Expression<Func<TEntity, bool>> expression);
 
         PagedListResult<TEntity> PagedSearch(
