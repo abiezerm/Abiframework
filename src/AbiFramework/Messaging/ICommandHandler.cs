@@ -1,3 +1,5 @@
+using AbiFramework.Entities;
+
 namespace AbiFramework.Messaging;
 
 public interface ICommandHandler<in TCommand>
