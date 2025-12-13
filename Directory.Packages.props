@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <!--.NET 9 packages. Most of them will work on .NET 8. If you need to, make the updates here individually.-->
+    <ItemGroup>
+        <PackageVersion Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
+        <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.15.0.81779" />
+    </ItemGroup>
+</Project>
