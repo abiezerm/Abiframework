@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>A .NET framework library designed to help developers implement Clean Architecture and enforce SOLID principles. Provides foundational abstractions for entities, repositories, unit of work patterns, domain events, and result handling.</Description>
-    <VersionPrefix>4.0.1</VersionPrefix>
+    <VersionPrefix>4.1.0</VersionPrefix>
     <Authors>Abiezer Matos</Authors>
     <AssemblyName>AbiFramework</AssemblyName>
     <PackageId>AbiFramework</PackageId>
