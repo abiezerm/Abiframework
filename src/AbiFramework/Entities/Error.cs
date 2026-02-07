@@ -1,5 +1,9 @@
 namespace AbiFramework.Entities;
 
+/// <summary>
+/// Represents an error with a code, description, and error type.
+/// </summary>
+[Obsolete("Use DomainError instead", false)]
 public record Error
 {
     public static readonly Error None = new(string.Empty, string.Empty, ErrorType.Failure);
@@ -32,5 +36,8 @@ public record Error
 
     public static Error Conflict(string code, string description) =>
         new(code, description, ErrorType.Conflict);
+
+    public static Error Validation(string code, string description) =>
+        new(code, description, ErrorType.Validation);
 }
 

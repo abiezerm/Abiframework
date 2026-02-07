@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AbiFramework.Entities;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 public class Result
 {
     public Result(bool isSuccess, Error error)
@@ -52,3 +53,4 @@ public class Result<TValue> : Result
     public static Result<TValue> ValidationFailure(Error error) =>
         new(default, false, error);
 }
+#pragma warning restore CS0618 // Type or member is obsolete
