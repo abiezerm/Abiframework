@@ -5,8 +5,8 @@
     <!--.NET 10 packages. Most of them will work on .NET 8. If you need to, make the updates here individually.-->
     <ItemGroup>
         <PackageVersion Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
-        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
-        <PackageVersion Include="FluentValidation" Version="11.8.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+        <PackageVersion Include="FluentValidation" Version="12.1.1" />
         <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.15.0.81779" />
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0" />
