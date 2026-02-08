@@ -37,6 +37,12 @@ public record Error
     public static Error Conflict(string code, string description) =>
         new(code, description, ErrorType.Conflict);
 
+    /// <summary>
+    /// Creates a validation error.
+    /// </summary>
+    /// <param name="code">The error code.</param>
+    /// <param name="description">The error description.</param>
+    /// <returns>A new <see cref="Error"/> instance representing a validation error.</returns>
     public static Error Validation(string code, string description) =>
         new(code, description, ErrorType.Validation);
 }

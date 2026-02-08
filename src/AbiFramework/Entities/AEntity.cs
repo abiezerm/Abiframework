@@ -51,6 +51,7 @@ public abstract class AEntity<TPrimaryKey> : IEntity<TPrimaryKey>
     /// This method is maintained for backward compatibility and calls AddDomainEvent internally.
     /// </summary>
     /// <param name="domainEvent">The domain event to raise.</param>
+    [Obsolete("Use AddDomainEvent instead for clarity", false)]
     public void Raise(IDomainEvent domainEvent)
     {
         AddDomainEvent(domainEvent);

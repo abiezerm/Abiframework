@@ -66,7 +66,7 @@ public static class ValidationDecorator
                 _logger.LogWarning("Validation failed for command {CommandType}: {Errors}",
                     typeof(TCommand).Name, errorMessage);
                 var domainError = DomainError.Validation(errorCode, errorMessage);
-                return (Result<TResponse>)Result<TResponse>.Failure(new Error(domainError.Code, domainError.Description, domainError.Type));
+                return Result<TResponse>.Failure(new Error(domainError.Code, domainError.Description, domainError.Type));
             }
 
             return await _inner.Handle(command, cancellationToken);

@@ -65,8 +65,8 @@ public static class LoggingDecorator
                         "Query {QueryName} failed in {ElapsedMilliseconds}ms with error: {ErrorCode} - {ErrorDescription}",
                         queryName,
                         stopwatch.ElapsedMilliseconds,
-                        result.Error.Code,
-                        result.Error.Description);
+                        result.Error?.Code ?? "Unknown",
+                        result.Error?.Description ?? "No error details available");
                 }
 
                 return result;
@@ -138,8 +138,8 @@ public static class LoggingDecorator
                         "Command {CommandName} failed in {ElapsedMilliseconds}ms with error: {ErrorCode} - {ErrorDescription}",
                         commandName,
                         stopwatch.ElapsedMilliseconds,
-                        result.Error.Code,
-                        result.Error.Description);
+                        result.Error?.Code ?? "Unknown",
+                        result.Error?.Description ?? "No error details available");
                 }
 
                 return result;
@@ -210,8 +210,8 @@ public static class LoggingDecorator
                         "Command {CommandName} failed in {ElapsedMilliseconds}ms with error: {ErrorCode} - {ErrorDescription}",
                         commandName,
                         stopwatch.ElapsedMilliseconds,
-                        result.Error.Code,
-                        result.Error.Description);
+                        result.Error?.Code ?? "Unknown",
+                        result.Error?.Description ?? "No error details available");
                 }
 
                 return result;

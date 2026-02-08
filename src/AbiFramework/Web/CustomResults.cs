@@ -16,8 +16,11 @@ public static class CustomResults
     /// </summary>
     /// <param name="result">The result to convert.</param>
     /// <returns>An <see cref="IResult"/> representing the result.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when result is null.</exception>
     public static IResult Problem(Result result)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         if (result.IsSuccess)
         {
             return Results.Ok();
@@ -32,8 +35,11 @@ public static class CustomResults
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="result">The result to convert.</param>
     /// <returns>An <see cref="IResult"/> representing the result.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when result is null.</exception>
     public static IResult Problem<T>(Result<T> result)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         if (result.IsSuccess)
         {
             return Results.Ok(result.Value);
