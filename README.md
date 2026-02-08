@@ -21,6 +21,7 @@ AbiFramework was created to provide a solid foundation for building enterprise a
 ### Core Entities
 
 - **Base Entity Classes**: `AEntity<TPrimaryKey>` with built-in domain event support
+- **DomainError**: Modern record-based error type with factory methods (replaces Error)
 - **Result Pattern**: `Result<T>` and `Result` classes for functional error handling
 - **Operation Results**: `OperationResult<T>` for operation status tracking
 - **Paged Results**: `PagedListResult<T>` for paginated data queries
@@ -52,6 +53,19 @@ AbiFramework was created to provide a solid foundation for building enterprise a
 - **Query Handlers**: `IQueryHandler<TQuery, TResponse>` for processing queries with Result pattern integration
 - **Result Integration**: All handlers return `Result` or `Result<TResponse>` for consistent error handling
 
+### Web Support (v5.0.0)
+
+- **IEndpoint Interface**: Modular endpoint definition with `IEndpoint.MapEndpoint()`
+- **Endpoint Extensions**: Automatic registration and mapping of endpoints via reflection
+- **CustomResults**: Convert `Result` to ASP.NET Core `IResult` with proper HTTP status codes
+- **Exception Handling**: Global exception handling middleware with JSON responses and debug support
+
+### Cross-Cutting Behaviors (v5.0.0)
+
+- **ValidationDecorator**: Generic decorator for command handlers using FluentValidation
+- **LoggingDecorator**: Generic decorator for query and command handlers with execution time tracking
+- **Scrutor Integration**: Ready for decorator pattern registration
+
 ### Helpers
 
 - **Predicate Builder**: Dynamic LINQ expression building for complex queries
@@ -74,7 +88,7 @@ Install-Package AbiFramework
 Or add directly to your `.csproj` file:
 
 ```xml
-<PackageReference Include="AbiFramework" Version="4.0.0" />
+<PackageReference Include="AbiFramework" Version="5.0.0" />
 ```
 
 ## Usage Examples
@@ -108,8 +122,8 @@ using AbiFramework.Entities;
 var result = Result.Success();
 var valueResult = Result.Success(user);
 
-// Failure case
-var error = new Error("User.NotFound", "User not found");
+// Failure case using DomainError (recommended)
+var error = DomainError.NotFound("User.NotFound", "User not found");
 var failure = Result.Failure(error);
 var failureWithValue = Result<User>.Failure(error);
 
@@ -205,21 +219,21 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, int>
 {
     private readonly IRepository<User, int> _repository;
     private readonly IUnitOfWork _unitOfWork;
-    
+
     public CreateUserCommandHandler(IRepository<User, int> repository, IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
     }
-    
+
     public async Task<Result<int>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         var user = new User { Name = command.Name, Email = command.Email };
         _repository.Add(user);
-        
+
         _unitOfWork.BeginTransaction();
         await _unitOfWork.CommitAsync();
-        
+
         return Result.Success(user.Id);
     }
 }
@@ -231,24 +245,86 @@ public record GetUserByIdQuery(int UserId) : IQuery<User>;
 public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, User>
 {
     private readonly IReadOnlyRepositoryAsync<User, int> _repository;
-    
+
     public GetUserByIdQueryHandler(IReadOnlyRepositoryAsync<User, int> repository)
     {
         _repository = repository;
     }
-    
+
     public async Task<Result<User>> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
     {
         var user = await _repository.Find(query.UserId);
-        
+
         if (user == null)
         {
-            return Result<User>.Failure(new Error("User.NotFound", "User not found"));
+            return Result<User>.Failure(DomainError.NotFound("User.NotFound", "User not found"));
         }
-        
+
         return Result.Success(user);
     }
 }
+```
+
+### Validation and Logging Behaviors
+
+```csharp
+using AbiFramework.Behaviors;
+using Scrutor;
+
+// Register handlers with decorators using Scrutor
+services.Scan(scan => scan
+    .FromAssembliesOf<CreateUserCommandHandler>()
+    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
+        .AsImplementedInterfaces()
+        .WithScopedLifetime()
+    .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
+        .AsImplementedInterfaces()
+        .WithScopedLifetime());
+
+// Add validation decorator
+services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandHandler<>));
+
+// Add logging decorator
+services.Decorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
+services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
+services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandHandler<>));
+```
+
+### Web API Endpoints
+
+```csharp
+using AbiFramework.Web;
+using AbiFramework.Entities;
+using static AbiFramework.Web.CustomResults;
+
+// Define an endpoint
+public class CreateUserEndpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        app.MapPost("/api/users", async (
+            CreateUserRequest request,
+            ICommandHandler<CreateUserCommand, int> handler,
+            CancellationToken ct) =>
+        {
+            var command = new CreateUserCommand(request.Name, request.Email);
+            var result = await handler.Handle(command, ct);
+            return result.Match(
+                id => Results.Created($"/api/users/{id}", id),
+                Problem);
+        });
+    }
+}
+
+// Register endpoints
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddEndpoints(typeof(CreateUserEndpoint).Assembly);
+
+var app = builder.Build();
+app.RegisterEndpoints();
+app.UseExceptionHandling(); // Add global exception handling
+app.Run();
 ```
 
 ### Predicate Builder

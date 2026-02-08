@@ -1,19 +1,29 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Description>A .NET framework library designed to help developers implement Clean Architecture and enforce SOLID principles. Provides foundational abstractions for entities, repositories, unit of work patterns, domain events, and result handling.</Description>
-    <VersionPrefix>4.1.0</VersionPrefix>
-    <Authors>Abiezer Matos</Authors>
-    <AssemblyName>AbiFramework</AssemblyName>
-    <PackageId>AbiFramework</PackageId>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <PackageId>AbiFramework</PackageId>
+    <Version>5.0.0</Version>
+    <Authors>Abiezer Matos</Authors>
+    <Description>Enhanced framework with Clean Architecture support, CQRS patterns, and web infrastructure</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageTags>CleanArchitecture;CQRS;DomainDrivenDesign;WebAPI</PackageTags>
+    <RepositoryUrl>https://github.com/abiezermatos/AbiFramework</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>$(NoWarn);CS0618;CS0266;CA1016;IDE0008;S3260;S1133;S6608;CA1852;S3904;CA1869</NoWarn>
   </PropertyGroup>
+
   <ItemGroup>
-    <!-- Removed duplicate PackageReference for Microsoft.AspNetCore.Http.Features; now managed centrally in Directory.Packages.props -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Scrutor" />
   </ItemGroup>
+
 </Project>
