@@ -17,6 +17,18 @@ public class Result
         Error = error;
     }
 
+    public Result(bool isSuccess, DomainError error)
+    {
+        if (isSuccess && error != DomainError.None ||
+            !isSuccess && error == DomainError.None)
+        {
+            throw new ArgumentException("Invalid error", nameof(error));
+        }
+
+        IsSuccess = isSuccess;
+        Error = new Error(error.Code, error.Description, (AbiFramework.Entities.ErrorType)error.Type);
+    }
+
     public bool IsSuccess { get; }
 
     public bool IsFailure => !IsSuccess;
@@ -30,13 +42,24 @@ public class Result
 
     public static Result Failure(Error error) => new(false, error);
 
+    public static Result Failure(DomainError error) => new(false, error);
+
     public static Result<TValue> Failure<TValue>(Error error) =>
+        new(default, false, error);
+
+    public static Result<TValue> Failure<TValue>(DomainError error) =>
         new(default, false, error);
 }
 
 public class Result<TValue> : Result
 {
     public Result(TValue? value, bool isSuccess, Error error)
+        : base(isSuccess, error)
+    {
+        Value = value;
+    }
+
+    public Result(TValue? value, bool isSuccess, DomainError error)
         : base(isSuccess, error)
     {
         Value = value;
@@ -51,6 +74,9 @@ public class Result<TValue> : Result
         value is not null ? Success(value) : Failure<TValue>(Error.NullValue);
 
     public static Result<TValue> ValidationFailure(Error error) =>
+        new(default, false, error);
+
+    public static Result<TValue> ValidationFailure(DomainError error) =>
         new(default, false, error);
 }
 #pragma warning restore CS0618 // Type or member is obsolete

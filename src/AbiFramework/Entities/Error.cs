@@ -45,5 +45,17 @@ public record Error
     /// <returns>A new <see cref="Error"/> instance representing a validation error.</returns>
     public static Error Validation(string code, string description) =>
         new(code, description, ErrorType.Validation);
+
+    /// <summary>
+    /// Implicit conversion from DomainError to Error.
+    /// </summary>
+    public static implicit operator Error(DomainError domainError) =>
+        new(domainError.Code, domainError.Description, (ErrorType)domainError.Type);
+
+    /// <summary>
+    /// Implicit conversion from Error to DomainError.
+    /// </summary>
+    public static implicit operator DomainError(Error error) =>
+        DomainError.Failure(error.Code, error.Description);
 }
 
