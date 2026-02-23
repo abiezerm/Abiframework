@@ -26,7 +26,7 @@ public class Result
         }
 
         IsSuccess = isSuccess;
-        Error = new Error(error.Code, error.Description, (AbiFramework.Entities.ErrorType)error.Type);
+        Error = new Error(error.Code, error.Description, error.Type);
     }
 
     public bool IsSuccess { get; }
