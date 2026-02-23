@@ -50,7 +50,7 @@ public record Error
     /// Implicit conversion from DomainError to Error.
     /// </summary>
     public static implicit operator Error(DomainError domainError) =>
-        new(domainError.Code, domainError.Description, (ErrorType)domainError.Type);
+        new(domainError.Code, domainError.Description, domainError.Type);
 
     /// <summary>
     /// Implicit conversion from Error to DomainError.
