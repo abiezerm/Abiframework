@@ -16,6 +16,10 @@ public class LoggingDecoratorTests
         _queryLogger = new Mock<ILogger<LoggingDecorator.QueryHandler<TestQuery, string>>>();
         _commandWithResponseLogger = new Mock<ILogger<LoggingDecorator.CommandHandler<TestCommand, int>>>();
         _commandLogger = new Mock<ILogger<LoggingDecorator.CommandHandler<TestCommand>>>();
+
+        _queryLogger.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+        _commandWithResponseLogger.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+        _commandLogger.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
     }
 
     [Fact]
@@ -233,7 +237,7 @@ public class LoggingDecoratorTests
         var expectedResult = Result.Success("test result");
         var innerHandler = new Mock<IQueryHandler<TestQuery, string>>();
         innerHandler.Setup(h => h.Handle(query, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(async () =>
+            .Returns(async () =>
             {
                 await Task.Delay(10);
                 return expectedResult;
@@ -298,6 +302,6 @@ public class LoggingDecoratorTests
             Times.Once);
     }
 
-    private record TestQuery : IQuery<string>;
-    private record TestCommand : ICommand<int>, ICommand;
+    internal record TestQuery : IQuery<string>;
+    internal record TestCommand : ICommand<int>, ICommand;
 }

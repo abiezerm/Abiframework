@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AbiFramework.UnitsOfWork;
@@ -21,7 +22,7 @@ namespace AbiFramework.UnitsOfWork;
         /// <summary>
         /// Save changes to the database.
         /// </summary>
-        Task CommitAsync();
+        Task CommitAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Rollbacks transaction and closes database connection.

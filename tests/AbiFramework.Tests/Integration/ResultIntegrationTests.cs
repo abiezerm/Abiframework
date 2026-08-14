@@ -84,7 +84,7 @@ public class ResultIntegrationTests
             Error.Validation("FIELD2.INVALID", "Field 2 is invalid")
         };
         var validationError = new ValidationError(errors);
-        var result = Result.Failure(validationError);
+        var result = Result.Failure((Error)validationError);
 
         // Act
         var httpResult = CustomResults.Problem(result);
@@ -163,7 +163,7 @@ public class ResultIntegrationTests
 
         // Act
         var validationError = ValidationError.FromResults(results);
-        var finalResult = Result.Failure(validationError);
+        var finalResult = Result.Failure((Error)validationError);
 
         // Assert
         finalResult.IsFailure.Should().BeTrue();

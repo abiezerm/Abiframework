@@ -127,7 +127,7 @@ public class ValidationErrorTests
         var validationError = new ValidationError(errors);
 
         // Act
-        var result = Result.Failure(validationError);
+        var result = Result.Failure((Error)validationError);
 
         // Assert
         result.IsFailure.Should().BeTrue();

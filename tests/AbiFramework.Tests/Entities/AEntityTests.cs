@@ -7,11 +7,8 @@ public class AEntityTests
     [Fact]
     public void Id_CanBeSetAndRetrieved()
     {
-        // Arrange
-        var entity = new TestEntity();
-
-        // Act
-        entity.Id = 42;
+        // Arrange & Act
+        var entity = new TestEntity(42);
 
         // Assert
         entity.Id.Should().Be(42);
@@ -179,9 +176,9 @@ public class AEntityTests
     public void CanCreateEntityWithDifferentPrimaryKeyTypes()
     {
         // Arrange & Act
-        var intEntity = new IntEntity { Id = 1 };
-        var guidEntity = new GuidEntity { Id = Guid.NewGuid() };
-        var stringEntity = new StringEntity { Id = "test" };
+        var intEntity = new IntEntity(1);
+        var guidEntity = new GuidEntity(Guid.NewGuid());
+        var stringEntity = new StringEntity("test");
 
         // Assert
         intEntity.Id.Should().Be(1);
@@ -205,17 +202,45 @@ public class AEntityTests
 
     private class TestEntity : AEntity<int>
     {
+        public TestEntity()
+        {
+        }
+
+        public TestEntity(int id)
+        {
+            Id = id;
+        }
+
         public void PerformBusinessOperation(string data)
         {
             Raise(new TestDomainEvent());
         }
     }
 
-    private class IntEntity : AEntity<int> { }
-    private class GuidEntity : AEntity<Guid> { }
+    private class IntEntity : AEntity<int>
+    {
+        public IntEntity(int id)
+        {
+            Id = id;
+        }
+    }
+
+    private class GuidEntity : AEntity<Guid>
+    {
+        public GuidEntity(Guid id)
+        {
+            Id = id;
+        }
+    }
+
     private class StringEntity : AEntity<string>
     {
-        public override string Id { get; set; } = string.Empty;
+        public override string Id { get; protected set; }
+
+        public StringEntity(string id)
+        {
+            Id = id;
+        }
     }
 
     private record TestDomainEvent : IDomainEvent;
