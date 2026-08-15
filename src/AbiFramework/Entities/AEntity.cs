@@ -9,9 +9,10 @@ namespace AbiFramework.Entities;
 public abstract class AEntity<TPrimaryKey> : IEntity<TPrimaryKey>
 {
     /// <summary>
-    /// Gets or sets the entity's primary key.
+    /// Gets the entity's primary key. Settable only by the entity itself (its own constructor
+    /// or subclass logic) — no external caller can overwrite an aggregate's identity.
     /// </summary>
-    public virtual TPrimaryKey Id { get; set; }
+    public virtual TPrimaryKey Id { get; protected set; }
 
     private readonly List<IDomainEvent> _domainEvents = [];
 

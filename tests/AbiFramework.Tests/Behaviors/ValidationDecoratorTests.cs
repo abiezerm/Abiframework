@@ -359,7 +359,7 @@ public class ValidationDecoratorTests
         validator2.Verify(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    private record TestCommand : ICommand<int>, ICommand
+    internal record TestCommand : ICommand<int>, ICommand
     {
         public string Value { get; init; } = string.Empty;
     }

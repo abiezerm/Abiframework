@@ -91,4 +91,14 @@ public record DomainError
     /// <returns>A new <see cref="DomainError"/> instance representing a conflict.</returns>
     public static DomainError Conflict(string code, string description) =>
         new(code, description, ErrorType.Conflict);
+
+    /// <summary>
+    /// Deconstructs this error into its constituent parts.
+    /// </summary>
+    public void Deconstruct(out string code, out string description, out ErrorType type)
+    {
+        code = Code;
+        description = Description;
+        type = Type;
+    }
 }

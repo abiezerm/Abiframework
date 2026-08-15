@@ -98,7 +98,9 @@ public class EndpointExtensionsTests
         services.AddEndpoints(assembly);
 
         // Assert
-        services.Should().NotBeEmpty();
+        // typeof(IEndpoint).Assembly contains the IEndpoint interface itself but no concrete
+        // implementation, so a correct scan registers nothing.
+        services.Should().BeEmpty();
     }
 
     [Fact]
