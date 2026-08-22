@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AbiFramework.Behaviors;
 using AbiFramework.Entities;
 using AbiFramework.Messaging;
@@ -37,7 +38,7 @@ public class LoggingDecoratorTests
             _queryLogger.Object);
 
         // Act
-        var result = await decorator.Handle(query, CancellationToken.None);
+        Result<string> result = await decorator.Handle(query, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -63,7 +64,7 @@ public class LoggingDecoratorTests
             _queryLogger.Object);
 
         // Act
-        var result = await decorator.Handle(query, CancellationToken.None);
+        Result<string> result = await decorator.Handle(query, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -106,7 +107,7 @@ public class LoggingDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -132,7 +133,7 @@ public class LoggingDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -175,7 +176,7 @@ public class LoggingDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -201,7 +202,7 @@ public class LoggingDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -254,6 +255,8 @@ public class LoggingDecoratorTests
         VerifyLogInformationContains(_queryLogger, "ms");
     }
 
+    [SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging",
+        Justification = "Moq expression-tree matcher, not a real logging call site — never evaluated at runtime.")]
     private static void VerifyLogInformationCalled<T>(Mock<ILogger<T>> logger, string message)
     {
         logger.Verify(
@@ -266,6 +269,8 @@ public class LoggingDecoratorTests
             Times.AtLeastOnce);
     }
 
+    [SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging",
+        Justification = "Moq expression-tree matcher, not a real logging call site — never evaluated at runtime.")]
     private static void VerifyLogInformationContains<T>(Mock<ILogger<T>> logger, string contains)
     {
         logger.Verify(
@@ -278,6 +283,8 @@ public class LoggingDecoratorTests
             Times.AtLeastOnce);
     }
 
+    [SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging",
+        Justification = "Moq expression-tree matcher, not a real logging call site — never evaluated at runtime.")]
     private static void VerifyLogWarningContains<T>(Mock<ILogger<T>> logger, string contains)
     {
         logger.Verify(
@@ -290,6 +297,8 @@ public class LoggingDecoratorTests
             Times.AtLeastOnce);
     }
 
+    [SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging",
+        Justification = "Moq expression-tree matcher, not a real logging call site — never evaluated at runtime.")]
     private static void VerifyLogErrorCalled<T>(Mock<ILogger<T>> logger, Exception exception)
     {
         logger.Verify(

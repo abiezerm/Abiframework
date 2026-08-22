@@ -8,11 +8,11 @@ public class ErrorTypeTests
     public void ErrorType_HasExpectedValues()
     {
         // Assert
-        Enum.IsDefined(typeof(ErrorType), ErrorType.Failure).Should().BeTrue();
-        Enum.IsDefined(typeof(ErrorType), ErrorType.Validation).Should().BeTrue();
-        Enum.IsDefined(typeof(ErrorType), ErrorType.Problem).Should().BeTrue();
-        Enum.IsDefined(typeof(ErrorType), ErrorType.NotFound).Should().BeTrue();
-        Enum.IsDefined(typeof(ErrorType), ErrorType.Conflict).Should().BeTrue();
+        Enum.IsDefined(ErrorType.Failure).Should().BeTrue();
+        Enum.IsDefined(ErrorType.Validation).Should().BeTrue();
+        Enum.IsDefined(ErrorType.Problem).Should().BeTrue();
+        Enum.IsDefined(ErrorType.NotFound).Should().BeTrue();
+        Enum.IsDefined(ErrorType.Conflict).Should().BeTrue();
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public class ErrorTypeTests
     public void ErrorType_CanBeUsedInSwitchExpression(ErrorType errorType)
     {
         // Act
-        var description = errorType switch
+        string description = errorType switch
         {
             ErrorType.Failure => "Failure",
             ErrorType.Validation => "Validation",
@@ -53,8 +53,8 @@ public class ErrorTypeTests
     public void ErrorType_CanBeConvertedToString()
     {
         // Act
-        var failureName = ErrorType.Failure.ToString();
-        var validationName = ErrorType.Validation.ToString();
+        string failureName = ErrorType.Failure.ToString();
+        string validationName = ErrorType.Validation.ToString();
 
         // Assert
         failureName.Should().Be("Failure");
@@ -65,7 +65,7 @@ public class ErrorTypeTests
     public void ErrorType_CanBeParsedFromString()
     {
         // Act
-        var parsed = Enum.Parse<ErrorType>("Validation");
+        ErrorType parsed = Enum.Parse<ErrorType>("Validation");
 
         // Assert
         parsed.Should().Be(ErrorType.Validation);
@@ -75,7 +75,7 @@ public class ErrorTypeTests
     public void ErrorType_HasAllExpectedMembers()
     {
         // Act
-        var allValues = Enum.GetValues<ErrorType>();
+        ErrorType[] allValues = Enum.GetValues<ErrorType>();
 
         // Assert
         allValues.Should().HaveCount(5);
@@ -116,7 +116,7 @@ public class ErrorTypeTests
     public void ErrorType_GetNames_ReturnsAllNames()
     {
         // Act
-        var names = Enum.GetNames<ErrorType>();
+        string[] names = Enum.GetNames<ErrorType>();
 
         // Assert
         names.Should().Contain("Failure");

@@ -22,7 +22,7 @@ public class ResultTests
     public void Success_WithValue_CreatesSuccessResultWithValue()
     {
         // Arrange
-        var value = 42;
+        int value = 42;
 
         // Act
         var result = Result.Success(value);
@@ -68,7 +68,7 @@ public class ResultTests
     public void Constructor_ThrowsException_WhenSuccessWithNonNoneError()
     {
         // Act & Assert
-        var act = () => new Result(true, Error.Failure("CODE", "Description"));
+        Func<Result> act = () => new Result(true, Error.Failure("CODE", "Description"));
         act.Should().Throw<ArgumentException>()
             .WithParameterName("error");
     }
@@ -77,7 +77,7 @@ public class ResultTests
     public void Constructor_ThrowsException_WhenFailureWithNoneError()
     {
         // Act & Assert
-        var act = () => new Result(false, Error.None);
+        Func<Result> act = () => new Result(false, Error.None);
         act.Should().Throw<ArgumentException>()
             .WithParameterName("error");
     }
@@ -89,7 +89,7 @@ public class ResultTests
         var result = Result.Failure<int>(Error.Failure("TEST.ERROR", "Test error"));
 
         // Act & Assert
-        var act = () => result.Value;
+        Func<int> act = () => result.Value;
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("The value of a failure result can't be accessed.");
     }
@@ -98,11 +98,11 @@ public class ResultTests
     public void Value_ReturnsValue_WhenAccessingSuccessResultValue()
     {
         // Arrange
-        var expectedValue = 42;
+        int expectedValue = 42;
         var result = Result.Success(expectedValue);
 
         // Act
-        var value = result.Value;
+        int value = result.Value;
 
         // Assert
         value.Should().Be(expectedValue);
@@ -163,7 +163,7 @@ public class ResultTests
     public void Result_CanBeUsedWithReferenceTypes()
     {
         // Arrange
-        var value = "test string";
+        string value = "test string";
 
         // Act
         var result = Result.Success(value);
@@ -219,7 +219,7 @@ public class ResultTests
         var result = Result.Success("test");
 
         // Act
-        var value = result.Value;
+        string value = result.Value;
 
         // Assert
         value.Should().NotBeNull();
@@ -264,7 +264,7 @@ public class ResultTests
         var result = Result.Success(42);
 
         // Act
-        var isEven = result.IsSuccess && result.Value % 2 == 0;
+        bool isEven = result.IsSuccess && result.Value % 2 == 0;
 
         // Assert
         isEven.Should().BeTrue();
@@ -277,7 +277,7 @@ public class ResultTests
         var result = Result.Failure<int>(Error.Failure("CODE", "Description"));
 
         // Act & Assert
-        var act = () => result.Value;
+        Func<int> act = () => result.Value;
         act.Should().Throw<InvalidOperationException>();
     }
 

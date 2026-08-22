@@ -16,11 +16,11 @@ public class ResultIntegrationTests
     public void Result_CanBeUsedInWebApiPattern()
     {
         // Arrange
-        var userId = 123;
+        int userId = 123;
         var result = Result.Success(userId);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
         httpResult.Should().BeOfType<Ok<int>>();
@@ -36,10 +36,10 @@ public class ResultIntegrationTests
         var result = Result.Failure<int>(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
@@ -66,8 +66,8 @@ public class ResultIntegrationTests
         var failureResult = Result.Failure<int>(Error.Failure("CODE", "Description"));
 
         // Act
-        var successValue = successResult.IsSuccess ? successResult.Value : 0;
-        var failureValue = failureResult.IsSuccess ? failureResult.Value : 0;
+        int successValue = successResult.IsSuccess ? successResult.Value : 0;
+        int failureValue = failureResult.IsSuccess ? failureResult.Value : 0;
 
         // Assert
         successValue.Should().Be(42);
@@ -78,7 +78,7 @@ public class ResultIntegrationTests
     public void ValidationError_CanBeUsedWithResult_AndCustomResults()
     {
         // Arrange
-        var errors = new[]
+        Error[] errors = new[]
         {
             Error.Validation("FIELD1.REQUIRED", "Field 1 is required"),
             Error.Validation("FIELD2.INVALID", "Field 2 is invalid")
@@ -87,10 +87,10 @@ public class ResultIntegrationTests
         var result = Result.Failure((Error)validationError);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         problemResult.ProblemDetails.Extensions["code"].Should().Be("Validation.General");
     }
@@ -108,10 +108,10 @@ public class ResultIntegrationTests
         var result = Result.Failure<string>(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(expectedStatusCode);
     }
 
@@ -128,12 +128,12 @@ public class ResultIntegrationTests
 
         // Act
         var result = Result.Success(order);
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var okResult = httpResult.Should().BeOfType<Ok<Order>>().Subject;
+        Ok<Order> okResult = httpResult.Should().BeOfType<Ok<Order>>().Subject;
         okResult.Value.Should().Be(order);
-        okResult.Value.Id.Should().Be(1);
+        okResult.Value!.Id.Should().Be(1);
         okResult.Value.CustomerName.Should().Be("John Doe");
     }
 
@@ -155,7 +155,7 @@ public class ResultIntegrationTests
     public void ErrorChaining_PreservesInformation()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Failure(Error.Validation("FIELD1.REQUIRED", "Field 1 required")),
             Result.Failure(Error.Validation("FIELD2.REQUIRED", "Field 2 required"))
@@ -172,11 +172,11 @@ public class ResultIntegrationTests
     }
 
     [Fact]
-    public void Result_HandlesAsyncOperations()
+    public async Task Result_HandlesAsyncOperations()
     {
         // Arrange & Act
-        var task = Task.FromResult(Result.Success(42));
-        var result = task.Result;
+        Task<Result<int>> task = Task.FromResult(Result.Success(42));
+        Result<int> result = await task;
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -187,7 +187,7 @@ public class ResultIntegrationTests
     public void Result_CanBeUsedWithLinq()
     {
         // Arrange
-        var results = new[]
+        Result<int>[] results = new[]
         {
             Result.Success(1),
             Result.Success(2),
@@ -208,13 +208,13 @@ public class ResultIntegrationTests
     public void Result_SupportsGuardClauses()
     {
         // Arrange
-        var result = GetUserById(999);
+        Result<User> result = GetUserById(999);
 
         // Act
         if (result.IsFailure)
         {
             // Early return pattern
-            var httpResult = CustomResults.Problem(result);
+            IResult httpResult = CustomResults.Problem(result);
             httpResult.Should().BeOfType<ProblemHttpResult>();
             return;
         }

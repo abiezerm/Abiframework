@@ -22,7 +22,7 @@ public class ErrorTests
     public void None_HasEmptyCodeAndDescription()
     {
         // Act
-        var error = Error.None;
+        Error error = Error.None;
 
         // Assert
         error.Code.Should().BeEmpty();
@@ -34,7 +34,7 @@ public class ErrorTests
     public void NullValue_HasPredefinedProperties()
     {
         // Act
-        var error = Error.NullValue;
+        Error error = Error.NullValue;
 
         // Assert
         error.Code.Should().Be("General.Null");
@@ -141,10 +141,10 @@ public class ErrorTests
     public void StaticInstances_AreSingleton()
     {
         // Act
-        var none1 = Error.None;
-        var none2 = Error.None;
-        var nullValue1 = Error.NullValue;
-        var nullValue2 = Error.NullValue;
+        Error none1 = Error.None;
+        Error none2 = Error.None;
+        Error nullValue1 = Error.NullValue;
+        Error nullValue2 = Error.NullValue;
 
         // Assert
         none1.Should().BeSameAs(none2);

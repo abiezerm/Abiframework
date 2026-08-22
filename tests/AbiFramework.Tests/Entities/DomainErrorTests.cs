@@ -20,7 +20,7 @@ public class DomainErrorTests
     public void None_HasEmptyCodeAndDescription()
     {
         // Act
-        var error = DomainError.None;
+        DomainError error = DomainError.None;
 
         // Assert
         error.Code.Should().BeEmpty();
@@ -32,7 +32,7 @@ public class DomainErrorTests
     public void NullValue_HasPredefinedProperties()
     {
         // Act
-        var error = DomainError.NullValue;
+        DomainError error = DomainError.NullValue;
 
         // Assert
         error.Code.Should().Be("General.Null");
@@ -140,7 +140,7 @@ public class DomainErrorTests
         var error = DomainError.Validation("TEST.CODE", "Test description");
 
         // Act
-        var toString = error.ToString();
+        string toString = error.ToString();
 
         // Assert
         toString.Should().Contain("TEST.CODE");
@@ -155,7 +155,7 @@ public class DomainErrorTests
         var error = DomainError.Failure("TEST.CODE", "Test description");
 
         // Act
-        var (code, description, type) = error;
+        (string? code, string? description, ErrorType type) = error;
 
         // Assert
         code.Should().Be("TEST.CODE");
@@ -182,10 +182,10 @@ public class DomainErrorTests
     public void StaticInstances_AreSingleton()
     {
         // Act
-        var none1 = DomainError.None;
-        var none2 = DomainError.None;
-        var nullValue1 = DomainError.NullValue;
-        var nullValue2 = DomainError.NullValue;
+        DomainError none1 = DomainError.None;
+        DomainError none2 = DomainError.None;
+        DomainError nullValue1 = DomainError.NullValue;
+        DomainError nullValue2 = DomainError.NullValue;
 
         // Assert
         none1.Should().BeSameAs(none2);

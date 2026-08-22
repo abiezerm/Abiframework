@@ -16,7 +16,7 @@ public class CustomResultsTests
         var result = Result.Success();
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
         httpResult.Should().BeOfType<Ok>();
@@ -26,14 +26,14 @@ public class CustomResultsTests
     public void Problem_WithValue_ReturnsOkWithValue_WhenResultIsSuccess()
     {
         // Arrange
-        var value = 42;
+        int value = 42;
         var result = Result.Success(value);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var okResult = httpResult.Should().BeOfType<Ok<int>>().Subject;
+        Ok<int> okResult = httpResult.Should().BeOfType<Ok<int>>().Subject;
         okResult.Value.Should().Be(value);
     }
 
@@ -45,7 +45,7 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
         httpResult.Should().BeOfType<ProblemHttpResult>();
@@ -59,10 +59,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
@@ -74,10 +74,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
@@ -89,10 +89,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
@@ -104,10 +104,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
@@ -119,10 +119,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
@@ -134,10 +134,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Extensions.Should().ContainKey("code");
         problemResult.ProblemDetails.Extensions["code"].Should().Be("CUSTOM.CODE");
     }
@@ -150,10 +150,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Detail.Should().Be("Detailed error description");
     }
 
@@ -165,10 +165,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Title.Should().Be("Not Found");
     }
 
@@ -180,10 +180,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Title.Should().Be("Bad Request");
     }
 
@@ -195,10 +195,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Title.Should().Be("Conflict");
     }
 
@@ -210,10 +210,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Title.Should().Be("Internal Server Error");
     }
 
@@ -225,10 +225,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Type.Should().Be("https://tools.ietf.org/html/rfc7231#section-6.5.4");
     }
 
@@ -240,10 +240,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.ProblemDetails.Type.Should().Be("https://tools.ietf.org/html/rfc7231#section-6.5.1");
     }
 
@@ -255,10 +255,10 @@ public class CustomResultsTests
         var result = Result.Failure<int>(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         problemResult.ProblemDetails.Detail.Should().Be("User not found");
     }
@@ -271,10 +271,10 @@ public class CustomResultsTests
         var result = Result.Success(dto);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var okResult = httpResult.Should().BeOfType<Ok<TestDto>>().Subject;
+        Ok<TestDto> okResult = httpResult.Should().BeOfType<Ok<TestDto>>().Subject;
         okResult.Value.Should().Be(dto);
     }
 
@@ -287,12 +287,12 @@ public class CustomResultsTests
         var result2 = Result.Failure(error);
 
         // Act
-        var httpResult1 = CustomResults.Problem(result1);
-        var httpResult2 = CustomResults.Problem(result2);
+        IResult httpResult1 = CustomResults.Problem(result1);
+        IResult httpResult2 = CustomResults.Problem(result2);
 
         // Assert
-        var problem1 = httpResult1.Should().BeOfType<ProblemHttpResult>().Subject;
-        var problem2 = httpResult2.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problem1 = httpResult1.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problem2 = httpResult2.Should().BeOfType<ProblemHttpResult>().Subject;
         problem1.StatusCode.Should().Be(problem2.StatusCode);
         problem1.ProblemDetails.Title.Should().Be(problem2.ProblemDetails.Title);
     }
@@ -310,10 +310,10 @@ public class CustomResultsTests
         var result = Result.Failure(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(expectedStatusCode);
     }
 

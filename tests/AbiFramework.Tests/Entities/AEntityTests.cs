@@ -114,7 +114,9 @@ public class AEntityTests
         var domainEvent = new TestDomainEvent();
 
         // Act
+#pragma warning disable CS0618 // intentionally testing the obsolete Raise backward-compat path
         entity.Raise(domainEvent);
+#pragma warning restore CS0618
 
         // Assert
         entity.DomainEvents.Should().ContainSingle()
@@ -131,7 +133,9 @@ public class AEntityTests
         var event2 = new TestDomainEvent();
 
         // Act
+#pragma warning disable CS0618 // intentionally testing the obsolete Raise backward-compat path
         entity1.Raise(event1);
+#pragma warning restore CS0618
         entity2.AddDomainEvent(event2);
 
         // Assert
@@ -148,8 +152,8 @@ public class AEntityTests
         entity.AddDomainEvent(domainEvent);
 
         // Act
-        var events1 = entity.DomainEvents;
-        var events2 = entity.DomainEvents;
+        List<IDomainEvent> events1 = entity.DomainEvents;
+        List<IDomainEvent> events2 = entity.DomainEvents;
 
         // Assert
         events1.Should().NotBeSameAs(events2);
@@ -165,7 +169,7 @@ public class AEntityTests
         entity.AddDomainEvent(domainEvent);
 
         // Act
-        var events = entity.DomainEvents;
+        List<IDomainEvent> events = entity.DomainEvents;
         events.Clear();
 
         // Assert
@@ -193,7 +197,7 @@ public class AEntityTests
         var entity = new TestEntity();
 
         // Act
-        entity.PerformBusinessOperation("test");
+        entity.PerformBusinessOperation();
 
         // Assert
         entity.DomainEvents.Should().ContainSingle()
@@ -211,9 +215,11 @@ public class AEntityTests
             Id = id;
         }
 
-        public void PerformBusinessOperation(string data)
+        public void PerformBusinessOperation()
         {
+#pragma warning disable CS0618 // intentionally testing the obsolete Raise backward-compat path
             Raise(new TestDomainEvent());
+#pragma warning restore CS0618
         }
     }
 

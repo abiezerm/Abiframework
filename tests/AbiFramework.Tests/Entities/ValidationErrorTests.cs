@@ -10,7 +10,7 @@ public class ValidationErrorTests
     public void Constructor_SetsErrorsArray()
     {
         // Arrange
-        var errors = new[]
+        Error[] errors = new[]
         {
             Error.Validation("VALIDATION.1", "First validation error"),
             Error.Validation("VALIDATION.2", "Second validation error")
@@ -27,7 +27,7 @@ public class ValidationErrorTests
     public void Constructor_SetsValidationType()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        Error[] errors = new[] { Error.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -40,7 +40,7 @@ public class ValidationErrorTests
     public void Constructor_SetsDefaultCodeAndDescription()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        Error[] errors = new[] { Error.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -54,7 +54,7 @@ public class ValidationErrorTests
     public void FromResults_CreatesValidationErrorFromFailedResults()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Failure(Error.Validation("VALIDATION.1", "First error")),
             Result.Success(),
@@ -74,7 +74,7 @@ public class ValidationErrorTests
     public void FromResults_IgnoresSuccessfulResults()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Success(),
             Result.Success(),
@@ -93,7 +93,7 @@ public class ValidationErrorTests
     public void FromResults_ReturnsEmptyErrorArray_WhenAllResultsSucceed()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Success(),
             Result.Success()
@@ -110,7 +110,7 @@ public class ValidationErrorTests
     public void ValidationError_IsAnError()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        Error[] errors = new[] { Error.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -123,7 +123,7 @@ public class ValidationErrorTests
     public void ValidationError_CanBeUsedInResult()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        Error[] errors = new[] { Error.Validation("CODE", "Description") };
         var validationError = new ValidationError(errors);
 
         // Act
@@ -141,7 +141,7 @@ public class ValidationErrorTests
         // Arrange
         var error1 = Error.Validation("FIELD.REQUIRED", "Field is required");
         var error2 = Error.Validation("FIELD.TOOLONG", "Field is too long");
-        var errors = new[] { error1, error2 };
+        Error[] errors = new[] { error1, error2 };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -155,7 +155,7 @@ public class ValidationErrorTests
     public void FromResults_WorksWithEmptyResultCollection()
     {
         // Arrange
-        var results = Array.Empty<Result>();
+        Result[] results = Array.Empty<Result>();
 
         // Act
         var validationError = ValidationError.FromResults(results);
@@ -168,7 +168,7 @@ public class ValidationErrorTests
     public void ValidationError_SupportsRecordEquality()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        Error[] errors = new[] { Error.Validation("CODE", "Description") };
         var validationError1 = new ValidationError(errors);
         var validationError2 = new ValidationError(errors);
 
@@ -180,7 +180,7 @@ public class ValidationErrorTests
     public void ValidationError_CanContainMixedErrorTypes()
     {
         // Arrange
-        var errors = new[]
+        Error[] errors = new[]
         {
             Error.Validation("VALIDATION.1", "Validation error"),
             Error.Failure("FAILURE.1", "Failure error"),
@@ -201,9 +201,9 @@ public class ValidationErrorTests
     public void FromResults_PreservesErrorDetails()
     {
         // Arrange
-        var expectedCode = "VALIDATION.CUSTOM";
-        var expectedDescription = "Custom validation failed";
-        var results = new[]
+        string expectedCode = "VALIDATION.CUSTOM";
+        string expectedDescription = "Custom validation failed";
+        Result[] results = new[]
         {
             Result.Failure(Error.Validation(expectedCode, expectedDescription))
         };
@@ -221,7 +221,7 @@ public class ValidationErrorTests
     public void ValidationError_ToString_IncludesErrorCount()
     {
         // Arrange
-        var errors = new[]
+        Error[] errors = new[]
         {
             Error.Validation("CODE1", "Description1"),
             Error.Validation("CODE2", "Description2")
@@ -229,7 +229,7 @@ public class ValidationErrorTests
         var validationError = new ValidationError(errors);
 
         // Act
-        var toString = validationError.ToString();
+        string toString = validationError.ToString();
 
         // Assert
         toString.Should().Contain("Validation.General");
@@ -239,7 +239,7 @@ public class ValidationErrorTests
     public void ValidationError_WithSingleError_StillReturnsArray()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        Error[] errors = new[] { Error.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);

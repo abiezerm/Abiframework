@@ -13,14 +13,14 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(TestEndpoint).Assembly;
+        Assembly assembly = typeof(TestEndpoint).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
 
         // Assert
-        var provider = services.BuildServiceProvider();
-        var endpoints = provider.GetServices<IEndpoint>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IEnumerable<IEndpoint> endpoints = provider.GetServices<IEndpoint>();
         endpoints.Should().NotBeEmpty();
     }
 
@@ -29,13 +29,13 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(TestEndpoint).Assembly;
+        Assembly assembly = typeof(TestEndpoint).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
 
         // Assert
-        var provider = services.BuildServiceProvider();
+        ServiceProvider provider = services.BuildServiceProvider();
         var endpoints = provider.GetServices<IEndpoint>().ToList();
         endpoints.Should().Contain(e => e.GetType() == typeof(TestEndpoint));
         endpoints.Should().Contain(e => e.GetType() == typeof(AnotherTestEndpoint));
@@ -59,15 +59,15 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(TestEndpoint).Assembly;
+        Assembly assembly = typeof(TestEndpoint).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
 
         // Assert
-        var provider = services.BuildServiceProvider();
-        var endpoint1 = provider.GetService<IEndpoint>();
-        var endpoint2 = provider.GetService<IEndpoint>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IEndpoint? endpoint1 = provider.GetService<IEndpoint>();
+        IEndpoint? endpoint2 = provider.GetService<IEndpoint>();
         endpoint1.Should().NotBeSameAs(endpoint2);
     }
 
@@ -76,14 +76,14 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(AbstractEndpoint).Assembly;
+        Assembly assembly = typeof(AbstractEndpoint).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
 
         // Assert
-        var provider = services.BuildServiceProvider();
-        var endpoints = provider.GetServices<IEndpoint>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IEnumerable<IEndpoint> endpoints = provider.GetServices<IEndpoint>();
         endpoints.Should().NotContain(e => e.GetType() == typeof(AbstractEndpoint));
     }
 
@@ -92,7 +92,7 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(IEndpoint).Assembly;
+        Assembly assembly = typeof(IEndpoint).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
@@ -108,15 +108,15 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly1 = typeof(TestEndpoint).Assembly;
-        var assembly2 = typeof(EndpointExtensionsTests).Assembly;
+        Assembly assembly1 = typeof(TestEndpoint).Assembly;
+        Assembly assembly2 = typeof(EndpointExtensionsTests).Assembly;
 
         // Act
         services.AddEndpoints(assembly1, assembly2);
 
         // Assert
-        var provider = services.BuildServiceProvider();
-        var endpoints = provider.GetServices<IEndpoint>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IEnumerable<IEndpoint> endpoints = provider.GetServices<IEndpoint>();
         endpoints.Should().NotBeEmpty();
     }
 
@@ -128,15 +128,15 @@ public class EndpointExtensionsTests
         services.AddSingleton<IEndpoint, TestEndpoint>();
         services.AddSingleton<IEndpoint, AnotherTestEndpoint>();
 
-        var provider = services.BuildServiceProvider();
+        ServiceProvider provider = services.BuildServiceProvider();
         var app = new MockEndpointRouteBuilder(provider);
 
         // Act
         app.RegisterEndpoints();
 
         // Assert
-        var testEndpoint = provider.GetServices<IEndpoint>().OfType<TestEndpoint>().First();
-        var anotherEndpoint = provider.GetServices<IEndpoint>().OfType<AnotherTestEndpoint>().First();
+        TestEndpoint testEndpoint = provider.GetServices<IEndpoint>().OfType<TestEndpoint>().First();
+        AnotherTestEndpoint anotherEndpoint = provider.GetServices<IEndpoint>().OfType<AnotherTestEndpoint>().First();
         testEndpoint.WasMapEndpointCalled.Should().BeTrue();
         anotherEndpoint.WasMapEndpointCalled.Should().BeTrue();
     }
@@ -146,11 +146,11 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var provider = services.BuildServiceProvider();
+        ServiceProvider provider = services.BuildServiceProvider();
         var app = new MockEndpointRouteBuilder(provider);
 
         // Act
-        var result = app.RegisterEndpoints();
+        IEndpointRouteBuilder result = app.RegisterEndpoints();
 
         // Assert
         result.Should().BeSameAs(app);
@@ -161,11 +161,11 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var provider = services.BuildServiceProvider();
+        ServiceProvider provider = services.BuildServiceProvider();
         var app = new MockEndpointRouteBuilder(provider);
 
         // Act
-        var act = () => app.RegisterEndpoints();
+        Func<IEndpointRouteBuilder> act = () => app.RegisterEndpoints();
 
         // Assert
         act.Should().NotThrow();
@@ -176,10 +176,10 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(TestEndpoint).Assembly;
+        Assembly assembly = typeof(TestEndpoint).Assembly;
 
         // Act
-        var result = services.AddEndpoints(assembly);
+        IServiceCollection result = services.AddEndpoints(assembly);
 
         // Assert
         result.Should().BeSameAs(services);
@@ -190,14 +190,14 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(NonEndpointClass).Assembly;
+        Assembly assembly = typeof(NonEndpointClass).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
 
         // Assert
-        var provider = services.BuildServiceProvider();
-        var endpoints = provider.GetServices<IEndpoint>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IEnumerable<IEndpoint> endpoints = provider.GetServices<IEndpoint>();
         endpoints.Should().NotContain(e => e.GetType() == typeof(NonEndpointClass));
     }
 
@@ -210,10 +210,10 @@ public class EndpointExtensionsTests
 
         // This test verifies the pattern works conceptually
         // Full integration would require WebApplicationBuilder
-        var provider = services.BuildServiceProvider();
+        ServiceProvider provider = services.BuildServiceProvider();
 
         // Assert
-        var endpoints = provider.GetServices<IEndpoint>();
+        IEnumerable<IEndpoint> endpoints = provider.GetServices<IEndpoint>();
         endpoints.Should().NotBeEmpty();
     }
 
@@ -222,14 +222,14 @@ public class EndpointExtensionsTests
     {
         // Arrange
         var services = new ServiceCollection();
-        var assembly = typeof(NestedEndpointContainer.NestedEndpoint).Assembly;
+        Assembly assembly = typeof(NestedEndpointContainer.NestedEndpoint).Assembly;
 
         // Act
         services.AddEndpoints(assembly);
 
         // Assert
-        var provider = services.BuildServiceProvider();
-        var endpoints = provider.GetServices<IEndpoint>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IEnumerable<IEndpoint> endpoints = provider.GetServices<IEndpoint>();
         endpoints.Should().Contain(e => e.GetType() == typeof(NestedEndpointContainer.NestedEndpoint));
     }
 
@@ -258,10 +258,7 @@ public class EndpointExtensionsTests
         public abstract void MapEndpoint(IEndpointRouteBuilder app);
     }
 
-    private class NonEndpointClass
-    {
-        public void SomeMethod() { }
-    }
+    private class NonEndpointClass;
 
     private static class NestedEndpointContainer
     {
