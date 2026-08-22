@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace AbiFramework.Web;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 /// <summary>
 /// Provides helper methods for converting <see cref="Result"/> and <see cref="Result{T}"/> to ASP.NET Core <see cref="IResult"/>.
 /// Maps error types to appropriate HTTP status codes.
@@ -53,7 +51,7 @@ public static class CustomResults
     /// </summary>
     /// <param name="error">The error to convert.</param>
     /// <returns>An <see cref="IResult"/> with the appropriate HTTP status code.</returns>
-    private static IResult CreateProblemResult(Error error)
+    private static IResult CreateProblemResult(DomainError error)
     {
         var statusCode = error.Type switch
         {

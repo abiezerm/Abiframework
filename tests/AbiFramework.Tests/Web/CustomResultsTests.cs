@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AbiFramework.Tests.Web;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 public class CustomResultsTests
 {
     [Fact]
@@ -41,7 +39,7 @@ public class CustomResultsTests
     public void Problem_ReturnsProblemDetails_WhenResultIsFailure()
     {
         // Arrange
-        var error = Error.Failure("TEST.ERROR", "Test error description");
+        var error = DomainError.Failure("TEST.ERROR", "Test error description");
         var result = Result.Failure(error);
 
         // Act
@@ -55,7 +53,7 @@ public class CustomResultsTests
     public void Problem_Returns404_WhenErrorTypeIsNotFound()
     {
         // Arrange
-        var error = Error.NotFound("ENTITY.NOTFOUND", "Entity not found");
+        var error = DomainError.NotFound("ENTITY.NOTFOUND", "Entity not found");
         var result = Result.Failure(error);
 
         // Act
@@ -70,7 +68,7 @@ public class CustomResultsTests
     public void Problem_Returns400_WhenErrorTypeIsValidation()
     {
         // Arrange
-        var error = Error.Validation("VALIDATION.ERROR", "Validation failed");
+        var error = DomainError.Validation("VALIDATION.ERROR", "Validation failed");
         var result = Result.Failure(error);
 
         // Act
@@ -85,7 +83,7 @@ public class CustomResultsTests
     public void Problem_Returns409_WhenErrorTypeIsConflict()
     {
         // Arrange
-        var error = Error.Conflict("CONFLICT.ERROR", "Conflict occurred");
+        var error = DomainError.Conflict("CONFLICT.ERROR", "Conflict occurred");
         var result = Result.Failure(error);
 
         // Act
@@ -100,7 +98,7 @@ public class CustomResultsTests
     public void Problem_Returns500_WhenErrorTypeIsFailure()
     {
         // Arrange
-        var error = Error.Failure("FAILURE.ERROR", "General failure");
+        var error = DomainError.Failure("FAILURE.ERROR", "General failure");
         var result = Result.Failure(error);
 
         // Act
@@ -115,7 +113,7 @@ public class CustomResultsTests
     public void Problem_Returns400_WhenErrorTypeIsProblem()
     {
         // Arrange
-        var error = Error.Problem("PROBLEM.ERROR", "Problem occurred");
+        var error = DomainError.Problem("PROBLEM.ERROR", "Problem occurred");
         var result = Result.Failure(error);
 
         // Act
@@ -130,7 +128,7 @@ public class CustomResultsTests
     public void Problem_IncludesErrorCode_InProblemDetails()
     {
         // Arrange
-        var error = Error.Failure("CUSTOM.CODE", "Error description");
+        var error = DomainError.Failure("CUSTOM.CODE", "Error description");
         var result = Result.Failure(error);
 
         // Act
@@ -146,7 +144,7 @@ public class CustomResultsTests
     public void Problem_IncludesErrorDescription_InProblemDetails()
     {
         // Arrange
-        var error = Error.Failure("CODE", "Detailed error description");
+        var error = DomainError.Failure("CODE", "Detailed error description");
         var result = Result.Failure(error);
 
         // Act
@@ -161,7 +159,7 @@ public class CustomResultsTests
     public void Problem_SetsAppropriateTitle_ForNotFound()
     {
         // Arrange
-        var error = Error.NotFound("CODE", "Description");
+        var error = DomainError.NotFound("CODE", "Description");
         var result = Result.Failure(error);
 
         // Act
@@ -176,7 +174,7 @@ public class CustomResultsTests
     public void Problem_SetsAppropriateTitle_ForValidation()
     {
         // Arrange
-        var error = Error.Validation("CODE", "Description");
+        var error = DomainError.Validation("CODE", "Description");
         var result = Result.Failure(error);
 
         // Act
@@ -191,7 +189,7 @@ public class CustomResultsTests
     public void Problem_SetsAppropriateTitle_ForConflict()
     {
         // Arrange
-        var error = Error.Conflict("CODE", "Description");
+        var error = DomainError.Conflict("CODE", "Description");
         var result = Result.Failure(error);
 
         // Act
@@ -206,7 +204,7 @@ public class CustomResultsTests
     public void Problem_SetsAppropriateTitle_ForFailure()
     {
         // Arrange
-        var error = Error.Failure("CODE", "Description");
+        var error = DomainError.Failure("CODE", "Description");
         var result = Result.Failure(error);
 
         // Act
@@ -221,7 +219,7 @@ public class CustomResultsTests
     public void Problem_IncludesRFC7231TypeUri_ForNotFound()
     {
         // Arrange
-        var error = Error.NotFound("CODE", "Description");
+        var error = DomainError.NotFound("CODE", "Description");
         var result = Result.Failure(error);
 
         // Act
@@ -236,7 +234,7 @@ public class CustomResultsTests
     public void Problem_IncludesRFC7231TypeUri_ForValidation()
     {
         // Arrange
-        var error = Error.Validation("CODE", "Description");
+        var error = DomainError.Validation("CODE", "Description");
         var result = Result.Failure(error);
 
         // Act
@@ -251,7 +249,7 @@ public class CustomResultsTests
     public void Problem_WorksWithGenericResult()
     {
         // Arrange
-        var error = Error.NotFound("USER.NOTFOUND", "User not found");
+        var error = DomainError.NotFound("USER.NOTFOUND", "User not found");
         var result = Result.Failure<int>(error);
 
         // Act
@@ -282,7 +280,7 @@ public class CustomResultsTests
     public void Problem_ReturnsConsistentResults_ForSameError()
     {
         // Arrange
-        var error = Error.Validation("CODE", "Description");
+        var error = DomainError.Validation("CODE", "Description");
         var result1 = Result.Failure(error);
         var result2 = Result.Failure(error);
 
@@ -306,7 +304,7 @@ public class CustomResultsTests
     public void Problem_MapsErrorTypeToCorrectStatusCode(ErrorType errorType, int expectedStatusCode)
     {
         // Arrange
-        var error = new Error("CODE", "Description", errorType);
+        var error = new DomainError("CODE", "Description", errorType);
         var result = Result.Failure(error);
 
         // Act
@@ -323,5 +321,3 @@ public class CustomResultsTests
         public string Name { get; set; } = string.Empty;
     }
 }
-
-#pragma warning restore CS0618 // Type or member is obsolete

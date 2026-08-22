@@ -2,8 +2,6 @@ using AbiFramework.Entities;
 
 namespace AbiFramework.Tests.Entities;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 public class ResultTests
 {
     [Fact]
@@ -15,7 +13,7 @@ public class ResultTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.IsFailure.Should().BeFalse();
-        result.Error.Should().Be(Error.None);
+        result.Error.Should().Be(DomainError.None);
     }
 
     [Fact]
@@ -31,14 +29,14 @@ public class ResultTests
         result.IsSuccess.Should().BeTrue();
         result.IsFailure.Should().BeFalse();
         result.Value.Should().Be(value);
-        result.Error.Should().Be(Error.None);
+        result.Error.Should().Be(DomainError.None);
     }
 
     [Fact]
     public void Failure_CreatesFailureResult()
     {
         // Arrange
-        var error = Error.Failure("TEST.ERROR", "Test error");
+        var error = DomainError.Failure("TEST.ERROR", "Test error");
 
         // Act
         var result = Result.Failure(error);
@@ -53,7 +51,7 @@ public class ResultTests
     public void Failure_WithValue_CreatesFailureResultWithoutValue()
     {
         // Arrange
-        var error = Error.Failure("TEST.ERROR", "Test error");
+        var error = DomainError.Failure("TEST.ERROR", "Test error");
 
         // Act
         var result = Result.Failure<int>(error);
@@ -68,7 +66,7 @@ public class ResultTests
     public void Constructor_ThrowsException_WhenSuccessWithNonNoneError()
     {
         // Act & Assert
-        var act = () => new Result(true, Error.Failure("CODE", "Description"));
+        var act = () => new Result(true, DomainError.Failure("CODE", "Description"));
         act.Should().Throw<ArgumentException>()
             .WithParameterName("error");
     }
@@ -77,7 +75,7 @@ public class ResultTests
     public void Constructor_ThrowsException_WhenFailureWithNoneError()
     {
         // Act & Assert
-        var act = () => new Result(false, Error.None);
+        var act = () => new Result(false, DomainError.None);
         act.Should().Throw<ArgumentException>()
             .WithParameterName("error");
     }
@@ -86,7 +84,7 @@ public class ResultTests
     public void Value_ThrowsException_WhenAccessingFailureResultValue()
     {
         // Arrange
-        var result = Result.Failure<int>(Error.Failure("TEST.ERROR", "Test error"));
+        var result = Result.Failure<int>(DomainError.Failure("TEST.ERROR", "Test error"));
 
         // Act & Assert
         var act = () => result.Value;
@@ -127,14 +125,14 @@ public class ResultTests
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(Error.NullValue);
+        result.Error.Should().Be(DomainError.NullValue);
     }
 
     [Fact]
     public void ValidationFailure_CreatesValidationFailureResult()
     {
         // Arrange
-        var error = Error.Validation("VALIDATION.ERROR", "Validation error");
+        var error = DomainError.Validation("VALIDATION.ERROR", "Validation error");
 
         // Act
         var result = Result<int>.ValidationFailure(error);
@@ -150,7 +148,7 @@ public class ResultTests
     {
         // Arrange
         var success = Result.Success();
-        var failure = Result.Failure(Error.Failure("CODE", "Description"));
+        var failure = Result.Failure(DomainError.Failure("CODE", "Description"));
 
         // Assert
         success.IsSuccess.Should().BeTrue();
@@ -191,7 +189,7 @@ public class ResultTests
     public void Result_PreservesErrorInformation()
     {
         // Arrange
-        var error = Error.NotFound("USER.NOTFOUND", "User with ID 42 not found");
+        var error = DomainError.NotFound("USER.NOTFOUND", "User with ID 42 not found");
 
         // Act
         var result = Result.Failure<int>(error);
@@ -274,7 +272,7 @@ public class ResultTests
     public void FailureResult_DoesNotHaveDefaultValue()
     {
         // Arrange
-        var result = Result.Failure<int>(Error.Failure("CODE", "Description"));
+        var result = Result.Failure<int>(DomainError.Failure("CODE", "Description"));
 
         // Act & Assert
         var act = () => result.Value;
@@ -287,5 +285,3 @@ public class ResultTests
         public string Name { get; set; } = string.Empty;
     }
 }
-
-#pragma warning restore CS0618 // Type or member is obsolete
