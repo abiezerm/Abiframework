@@ -51,9 +51,7 @@ public class LoggingDecoratorTests
         // Arrange
         var query = new TestQuery();
         var error = DomainError.Failure("TEST.ERROR", "Test error");
-#pragma warning disable CS0618 // Type or member is obsolete
-        var expectedResult = Result.Failure<string>(new Error(error.Code, error.Description, error.Type));
-#pragma warning restore CS0618 // Type or member is obsolete
+        var expectedResult = Result.Failure<string>(error);
         var innerHandler = new Mock<IQueryHandler<TestQuery, string>>();
         innerHandler.Setup(h => h.Handle(query, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);
@@ -120,9 +118,7 @@ public class LoggingDecoratorTests
         // Arrange
         var command = new TestCommand();
         var error = DomainError.Failure("TEST.ERROR", "Test error");
-#pragma warning disable CS0618 // Type or member is obsolete
-        var expectedResult = Result.Failure<int>(new Error(error.Code, error.Description, error.Type));
-#pragma warning restore CS0618 // Type or member is obsolete
+        var expectedResult = Result.Failure<int>(error);
         var innerHandler = new Mock<ICommandHandler<TestCommand, int>>();
         innerHandler.Setup(h => h.Handle(command, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);
@@ -189,9 +185,7 @@ public class LoggingDecoratorTests
         // Arrange
         var command = new TestCommand();
         var error = DomainError.Failure("TEST.ERROR", "Test error");
-#pragma warning disable CS0618 // Type or member is obsolete
-        var expectedResult = Result.Failure(new Error(error.Code, error.Description, error.Type));
-#pragma warning restore CS0618 // Type or member is obsolete
+        var expectedResult = Result.Failure(error);
         var innerHandler = new Mock<ICommandHandler<TestCommand>>();
         innerHandler.Setup(h => h.Handle(command, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);

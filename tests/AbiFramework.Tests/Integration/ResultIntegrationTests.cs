@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AbiFramework.Tests.Integration;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 /// <summary>
 /// Integration tests showing how Result pattern works with CustomResults for Web APIs
 /// </summary>
@@ -32,7 +30,7 @@ public class ResultIntegrationTests
     public void FailureResult_MapsToCorrectHttpStatus()
     {
         // Arrange
-        var error = Error.NotFound("USER.NOTFOUND", "User not found");
+        var error = DomainError.NotFound("USER.NOTFOUND", "User not found");
         var result = Result.Failure<int>(error);
 
         // Act
@@ -44,26 +42,11 @@ public class ResultIntegrationTests
     }
 
     [Fact]
-    public void DomainError_CanBeConvertedToError_ForBackwardCompatibility()
-    {
-        // Arrange
-        var domainError = DomainError.Validation("CODE", "Description");
-
-        // Act
-        var error = new Error(domainError.Code, domainError.Description, domainError.Type);
-        var result = Result.Failure(error);
-
-        // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Type.Should().Be(ErrorType.Validation);
-    }
-
-    [Fact]
     public void Result_SupportsMatchPattern()
     {
         // Arrange
         var successResult = Result.Success(42);
-        var failureResult = Result.Failure<int>(Error.Failure("CODE", "Description"));
+        var failureResult = Result.Failure<int>(DomainError.Failure("CODE", "Description"));
 
         // Act
         var successValue = successResult.IsSuccess ? successResult.Value : 0;
@@ -80,11 +63,11 @@ public class ResultIntegrationTests
         // Arrange
         var errors = new[]
         {
-            Error.Validation("FIELD1.REQUIRED", "Field 1 is required"),
-            Error.Validation("FIELD2.INVALID", "Field 2 is invalid")
+            DomainError.Validation("FIELD1.REQUIRED", "Field 1 is required"),
+            DomainError.Validation("FIELD2.INVALID", "Field 2 is invalid")
         };
         var validationError = new ValidationError(errors);
-        var result = Result.Failure((Error)validationError);
+        var result = Result.Failure(validationError);
 
         // Act
         var httpResult = CustomResults.Problem(result);
@@ -104,7 +87,7 @@ public class ResultIntegrationTests
     public void AllErrorTypes_MapToCorrectStatusCodes(ErrorType errorType, int expectedStatusCode)
     {
         // Arrange
-        var error = new Error("CODE", "Description", errorType);
+        var error = new DomainError("CODE", "Description", errorType);
         var result = Result.Failure<string>(error);
 
         // Act
@@ -146,7 +129,7 @@ public class ResultIntegrationTests
 
         // Assert
         nullResult.IsFailure.Should().BeTrue();
-        nullResult.Error.Should().Be(Error.NullValue);
+        nullResult.Error.Should().Be(DomainError.NullValue);
         valueResult.IsSuccess.Should().BeTrue();
         valueResult.Value.Should().Be("test");
     }
@@ -157,13 +140,13 @@ public class ResultIntegrationTests
         // Arrange
         var results = new[]
         {
-            Result.Failure(Error.Validation("FIELD1.REQUIRED", "Field 1 required")),
-            Result.Failure(Error.Validation("FIELD2.REQUIRED", "Field 2 required"))
+            Result.Failure(DomainError.Validation("FIELD1.REQUIRED", "Field 1 required")),
+            Result.Failure(DomainError.Validation("FIELD2.REQUIRED", "Field 2 required"))
         };
 
         // Act
         var validationError = ValidationError.FromResults(results);
-        var finalResult = Result.Failure((Error)validationError);
+        var finalResult = Result.Failure(validationError);
 
         // Assert
         finalResult.IsFailure.Should().BeTrue();
@@ -191,7 +174,7 @@ public class ResultIntegrationTests
         {
             Result.Success(1),
             Result.Success(2),
-            Result.Failure<int>(Error.Failure("CODE", "Description")),
+            Result.Failure<int>(DomainError.Failure("CODE", "Description")),
             Result.Success(3)
         };
 
@@ -232,7 +215,7 @@ public class ResultIntegrationTests
     {
         if (id == 999)
         {
-            return Result.Failure<User>(Error.NotFound("USER.NOTFOUND", "User not found"));
+            return Result.Failure<User>(DomainError.NotFound("USER.NOTFOUND", "User not found"));
         }
 
         return Result.Success(new User { Id = id, Name = "Test User" });
@@ -251,5 +234,3 @@ public class ResultIntegrationTests
         public string Name { get; set; } = string.Empty;
     }
 }
-
-#pragma warning restore CS0618 // Type or member is obsolete

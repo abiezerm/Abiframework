@@ -2,8 +2,6 @@ using AbiFramework.Entities;
 
 namespace AbiFramework.Tests.Entities;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 public class ValidationErrorTests
 {
     [Fact]
@@ -12,8 +10,8 @@ public class ValidationErrorTests
         // Arrange
         var errors = new[]
         {
-            Error.Validation("VALIDATION.1", "First validation error"),
-            Error.Validation("VALIDATION.2", "Second validation error")
+            DomainError.Validation("VALIDATION.1", "First validation error"),
+            DomainError.Validation("VALIDATION.2", "Second validation error")
         };
 
         // Act
@@ -27,7 +25,7 @@ public class ValidationErrorTests
     public void Constructor_SetsValidationType()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        var errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -40,7 +38,7 @@ public class ValidationErrorTests
     public void Constructor_SetsDefaultCodeAndDescription()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        var errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -56,9 +54,9 @@ public class ValidationErrorTests
         // Arrange
         var results = new[]
         {
-            Result.Failure(Error.Validation("VALIDATION.1", "First error")),
+            Result.Failure(DomainError.Validation("VALIDATION.1", "First error")),
             Result.Success(),
-            Result.Failure(Error.Validation("VALIDATION.2", "Second error"))
+            Result.Failure(DomainError.Validation("VALIDATION.2", "Second error"))
         };
 
         // Act
@@ -78,7 +76,7 @@ public class ValidationErrorTests
         {
             Result.Success(),
             Result.Success(),
-            Result.Failure(Error.Validation("VALIDATION.1", "Error"))
+            Result.Failure(DomainError.Validation("VALIDATION.1", "Error"))
         };
 
         // Act
@@ -110,24 +108,24 @@ public class ValidationErrorTests
     public void ValidationError_IsAnError()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        var errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
 
         // Assert
-        validationError.Should().BeAssignableTo<Error>();
+        validationError.Should().BeAssignableTo<DomainError>();
     }
 
     [Fact]
     public void ValidationError_CanBeUsedInResult()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        var errors = new[] { DomainError.Validation("CODE", "Description") };
         var validationError = new ValidationError(errors);
 
         // Act
-        var result = Result.Failure((Error)validationError);
+        var result = Result.Failure(validationError);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -139,8 +137,8 @@ public class ValidationErrorTests
     public void ValidationError_PreservesIndividualErrors()
     {
         // Arrange
-        var error1 = Error.Validation("FIELD.REQUIRED", "Field is required");
-        var error2 = Error.Validation("FIELD.TOOLONG", "Field is too long");
+        var error1 = DomainError.Validation("FIELD.REQUIRED", "Field is required");
+        var error2 = DomainError.Validation("FIELD.TOOLONG", "Field is too long");
         var errors = new[] { error1, error2 };
 
         // Act
@@ -168,7 +166,7 @@ public class ValidationErrorTests
     public void ValidationError_SupportsRecordEquality()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        var errors = new[] { DomainError.Validation("CODE", "Description") };
         var validationError1 = new ValidationError(errors);
         var validationError2 = new ValidationError(errors);
 
@@ -182,9 +180,9 @@ public class ValidationErrorTests
         // Arrange
         var errors = new[]
         {
-            Error.Validation("VALIDATION.1", "Validation error"),
-            Error.Failure("FAILURE.1", "Failure error"),
-            Error.NotFound("NOTFOUND.1", "Not found error")
+            DomainError.Validation("VALIDATION.1", "Validation error"),
+            DomainError.Failure("FAILURE.1", "Failure error"),
+            DomainError.NotFound("NOTFOUND.1", "Not found error")
         };
 
         // Act
@@ -205,7 +203,7 @@ public class ValidationErrorTests
         var expectedDescription = "Custom validation failed";
         var results = new[]
         {
-            Result.Failure(Error.Validation(expectedCode, expectedDescription))
+            Result.Failure(DomainError.Validation(expectedCode, expectedDescription))
         };
 
         // Act
@@ -223,8 +221,8 @@ public class ValidationErrorTests
         // Arrange
         var errors = new[]
         {
-            Error.Validation("CODE1", "Description1"),
-            Error.Validation("CODE2", "Description2")
+            DomainError.Validation("CODE1", "Description1"),
+            DomainError.Validation("CODE2", "Description2")
         };
         var validationError = new ValidationError(errors);
 
@@ -239,15 +237,13 @@ public class ValidationErrorTests
     public void ValidationError_WithSingleError_StillReturnsArray()
     {
         // Arrange
-        var errors = new[] { Error.Validation("CODE", "Description") };
+        var errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
 
         // Assert
-        validationError.Errors.Should().BeOfType<Error[]>();
+        validationError.Errors.Should().BeOfType<DomainError[]>();
         validationError.Errors.Should().ContainSingle();
     }
 }
-
-#pragma warning restore CS0618 // Type or member is obsolete

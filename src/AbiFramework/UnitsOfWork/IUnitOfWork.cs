@@ -7,7 +7,7 @@ namespace AbiFramework.UnitsOfWork;
     /// <summary>
     /// Represents a transactional job.
     /// </summary>
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IAsyncDisposable
     {
         /// <summary>
         /// Opens database connection and begins transaction.
