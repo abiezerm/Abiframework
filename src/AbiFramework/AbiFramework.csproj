@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <PackageId>AbiFramework</PackageId>
-    <Version>6.0.1</Version>
+    <Version>7.0.0</Version>
     <Authors>Abiezer Matos</Authors>
     <Description>Enhanced framework with Clean Architecture support, CQRS patterns, and web infrastructure</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
