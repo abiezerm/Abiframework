@@ -5,4 +5,5 @@
     <File Path="Directory.Packages.props" />
   </Folder>
   <Project Path="src/AbiFramework/AbiFramework.csproj" />
+  <Project Path="tests/AbiFramework.Tests/AbiFramework.Tests.csproj" />
 </Solution>

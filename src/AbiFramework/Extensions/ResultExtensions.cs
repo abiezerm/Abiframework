@@ -16,6 +16,7 @@ public static class ResultExtensions
         this Result<TIn> result,
         Func<TIn, TOut> onSuccess,
         Func<Result<TIn>, TOut> onFailure)
+        where TIn : notnull
     {
         return result.IsSuccess ? onSuccess(result.Value) : onFailure(result);
     }

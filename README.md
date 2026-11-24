@@ -22,7 +22,7 @@ AbiFramework was created to provide a solid foundation for building enterprise a
 
 - **Base Entity Classes**: `AEntity<TPrimaryKey>` with built-in domain event support
 - **DomainError**: Modern record-based error type with factory methods (replaces Error)
-- **Result Pattern**: `Result<T>` and `Result` classes for functional error handling
+- **Result Pattern**: Union-based `Result<T>` and `Result` values for functional error handling
 - **Operation Results**: `OperationResult<T>` for operation status tracking
 - **Paged Results**: `PagedListResult<T>` for paginated data queries
 - **Auditable Entities**: Support for tracking creation and modification dates
@@ -88,7 +88,7 @@ Install-Package AbiFramework
 Or add directly to your `.csproj` file:
 
 ```xml
-<PackageReference Include="AbiFramework" Version="5.0.0" />
+<PackageReference Include="AbiFramework" Version="8.0.0" />
 ```
 
 ## Usage Examples
@@ -118,20 +118,23 @@ public record EmailChangedEvent(int UserId, string NewEmail) : IDomainEvent;
 ```csharp
 using AbiFramework.Entities;
 
-// Success case
-var result = Result.Success();
-var valueResult = Result.Success(user);
-
-// Failure case using DomainError (recommended)
-var error = DomainError.NotFound("User.NotFound", "User not found");
-var failure = Result.Failure(error);
-var failureWithValue = Result<User>.Failure(error);
-
-// Usage
-if (result.IsSuccess)
+Result<User> FindUser(int id)
 {
-    var user = valueResult.Value; // Safe access
+    if (id <= 0)
+    {
+        DomainError error = DomainError.Validation("User.Id", "The id must be positive");
+        return error;
+    }
+
+    User user = LoadUser(id);
+    return user;
 }
+
+string Describe(Result<User> result) => result switch
+{
+    User user => user.Name,
+    DomainError error => error.Description
+};
 ```
 
 ### Using the Repository Pattern
@@ -257,10 +260,10 @@ public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, User>
 
         if (user == null)
         {
-            return Result<User>.Failure(DomainError.NotFound("User.NotFound", "User not found"));
+            return DomainError.NotFound("User.NotFound", "User not found");
         }
 
-        return Result.Success(user);
+        return user;
     }
 }
 ```
@@ -309,10 +312,8 @@ public class CreateUserEndpoint : IEndpoint
             CancellationToken ct) =>
         {
             var command = new CreateUserCommand(request.Name, request.Email);
-            var result = await handler.Handle(command, ct);
-            return result.Match(
-                id => Results.Created($"/api/users/{id}", id),
-                Problem);
+            return await handler.Handle(command, ct)
+                .ToHttpResult(id => Results.Created($"/api/users/{id}", id));
         });
     }
 }
@@ -342,7 +343,23 @@ var users = _repository.FilterBy(predicate);
 
 ## Target Framework
 
-This library targets **.NET 10.0**, providing access to the latest C# features and performance improvements.
+AbiFramework 8.0.0 targets **.NET 11.0** and requires the .NET 11 SDK to build consumers.
+
+`Result<T>` is a domain value, not a DTO. Map it to an HTTP result at the endpoint boundary with `ToHttpResult()` rather than returning it as an API response body. The extension supports `Result`, `Result<T>`, and their `Task` forms; the success mapper can produce responses such as `201 Created`.
+
+### Migrating from 7.x
+
+- Retarget consumer projects to `net11.0` and install the .NET 11 SDK.
+- `Result<T>` is now a struct union of `T` and `DomainError`; the non-generic `Result` is a union of `Unit` and `DomainError`. Neither result type is nullable or inherits from the other.
+- `Result<T>` and generic CQRS command/query contracts and handlers require non-null response types (`where TResponse : notnull`). Change nullable response contracts to a non-null response model or represent absence explicitly.
+- Remove uses of `Result<T?>`, nullable-result checks, and code passing `Result<T>` where `Result` is expected.
+- Replace the removed `(value, isSuccess, error)` constructors with implicit conversions (`return value;`, `return error;`) or the static `Success` and `Failure` factories.
+- Replace mixed-type `ValidationError.FromResults` inputs with the overload matching the result type (`IEnumerable<Result>` or `IEnumerable<Result<T>>`).
+- Failures cannot be built from `DomainError.None`: `Result.Failure(...)`, `Result<T>.Failure(...)`, `ValidationFailure(...)` and the implicit conversion from `DomainError` throw `ArgumentException("Invalid error")`, as in 7.x.
+- **New in 8.0:** a `null` `DomainError` is rejected too. The same factories and the implicit conversion throw `ArgumentNullException`. 7.x accepted a `null` error at runtime, so code that relied on that must pass a real `DomainError`.
+- `Result<T>` tracks success and failure with an explicit tag, so `Result<object>`, `Result<DomainError>` and other overlapping payload types keep the two cases distinct in `IsSuccess`, `Error`, `Value`, `Match`, `ToHttpResult()` and equality.
+- The exhaustive `switch` (`T value => ..., DomainError error => ...`, with missing arms reported by the compiler) is guaranteed only when `T` does not overlap `DomainError`, that is, when `T` is not `DomainError`, a type derived from it, or a supertype such as `object`. For overlapping types, branch on `IsSuccess`/`IsFailure` or use `Match`; don't use `switch`. A `DomainError`-first switch routes by case, but an `object` arm also matches failures, and the compiler can't report the missing case.
+- `Result` is a domain value, not an HTTP response DTO. Existing `result.Match(...)` and `CustomResults.Problem(...)` calls keep working unchanged; use `ToHttpResult()` as an optional one-call shortcut at the endpoint boundary.
 
 ## Contributing
 

@@ -76,7 +76,7 @@ public class ExceptionHandlingMiddleware
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        await context.Response.WriteAsync(JsonSerializer.Serialize(response, options));
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response, options), context.RequestAborted);
     }
 
     /// <summary>

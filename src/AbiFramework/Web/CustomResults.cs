@@ -1,108 +1,56 @@
 using AbiFramework.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AbiFramework.Web;
 
 /// <summary>
-/// Provides helper methods for converting <see cref="Result"/> and <see cref="Result{T}"/> to ASP.NET Core <see cref="IResult"/>.
-/// Maps error types to appropriate HTTP status codes.
+/// Maps operation results and domain errors to ASP.NET Core HTTP results.
 /// </summary>
 public static class CustomResults
 {
     /// <summary>
-    /// Converts a <see cref="Result"/> to an <see cref="IResult"/> with appropriate HTTP status code.
+    /// Converts a non-value result to an HTTP result.
     /// </summary>
-    /// <param name="result">The result to convert.</param>
-    /// <returns>An <see cref="IResult"/> representing the result.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when result is null.</exception>
-    public static IResult Problem(Result result)
-    {
-        ArgumentNullException.ThrowIfNull(result);
-
-        if (result.IsSuccess)
-        {
-            return Results.Ok();
-        }
-
-        return CreateProblemResult(result.Error);
-    }
+    public static IResult Problem(Result result) =>
+        result.IsSuccess
+            ? TypedResults.Ok()
+            : BuildProblem(result.Error);
 
     /// <summary>
-    /// Converts a <see cref="Result{T}"/> to an <see cref="IResult"/> with appropriate HTTP status code.
+    /// Converts a value result to an HTTP result.
     /// </summary>
-    /// <typeparam name="T">The type of the result value.</typeparam>
-    /// <param name="result">The result to convert.</param>
-    /// <returns>An <see cref="IResult"/> representing the result.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when result is null.</exception>
-    public static IResult Problem<T>(Result<T> result)
-    {
-        ArgumentNullException.ThrowIfNull(result);
-
-        if (result.IsSuccess)
-        {
-            return Results.Ok(result.Value);
-        }
-
-        return CreateProblemResult(result.Error);
-    }
+    public static IResult Problem<T>(Result<T> result) where T : notnull =>
+        result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : BuildProblem(result.Error);
 
     /// <summary>
-    /// Creates a problem result from an error with the appropriate HTTP status code.
+    /// Creates an RFC 7807 problem response from a domain error.
     /// </summary>
-    /// <param name="error">The error to convert.</param>
-    /// <returns>An <see cref="IResult"/> with the appropriate HTTP status code.</returns>
-    private static IResult CreateProblemResult(DomainError error)
+    public static ProblemHttpResult Problem(DomainError error) => BuildProblem(error);
+
+    internal static ProblemHttpResult BuildProblemResult(DomainError error) => BuildProblem(error);
+
+    private static ProblemHttpResult BuildProblem(DomainError error)
     {
-        var statusCode = error.Type switch
+        var (statusCode, title, type) = error.Type switch
         {
-            ErrorType.NotFound => StatusCodes.Status404NotFound,
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
-            ErrorType.Conflict => StatusCodes.Status409Conflict,
-            ErrorType.Failure => StatusCodes.Status500InternalServerError,
-            ErrorType.Problem => StatusCodes.Status400BadRequest,
-            _ => StatusCodes.Status500InternalServerError
+            ErrorType.NotFound => (StatusCodes.Status404NotFound, "Not Found", "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
+            ErrorType.Validation => (StatusCodes.Status400BadRequest, "Bad Request", "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+            ErrorType.Conflict => (StatusCodes.Status409Conflict, "Conflict", "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
+            ErrorType.Problem => (StatusCodes.Status400BadRequest, "Bad Request", "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+            _ => (StatusCodes.Status500InternalServerError, "Internal Server Error", "https://tools.ietf.org/html/rfc7231#section-6.6.1")
         };
 
-        return Results.Problem(
+        return TypedResults.Problem(
             statusCode: statusCode,
-            title: GetTitleForErrorType(error.Type),
+            title: title,
             detail: error.Description,
-            type: GetTypeForErrorType(error.Type),
+            type: type,
             extensions: new Dictionary<string, object?>
             {
                 { "code", error.Code }
             });
     }
-
-    /// <summary>
-    /// Gets the title for an error type.
-    /// </summary>
-    /// <param name="errorType">The error type.</param>
-    /// <returns>The title for the error type.</returns>
-    private static string GetTitleForErrorType(ErrorType errorType) =>
-        errorType switch
-        {
-            ErrorType.NotFound => "Not Found",
-            ErrorType.Validation => "Bad Request",
-            ErrorType.Conflict => "Conflict",
-            ErrorType.Failure => "Internal Server Error",
-            ErrorType.Problem => "Bad Request",
-            _ => "Internal Server Error"
-        };
-
-    /// <summary>
-    /// Gets the type URI for an error type.
-    /// </summary>
-    /// <param name="errorType">The error type.</param>
-    /// <returns>The type URI for the error type.</returns>
-    private static string GetTypeForErrorType(ErrorType errorType) =>
-        errorType switch
-        {
-            ErrorType.NotFound => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-            ErrorType.Validation => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-            ErrorType.Conflict => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
-            ErrorType.Failure => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-            ErrorType.Problem => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-            _ => "https://tools.ietf.org/html/rfc7231#section-6.6.1"
-        };
 }

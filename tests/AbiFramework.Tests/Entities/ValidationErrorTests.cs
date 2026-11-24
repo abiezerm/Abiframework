@@ -8,7 +8,7 @@ public class ValidationErrorTests
     public void Constructor_SetsErrorsArray()
     {
         // Arrange
-        var errors = new[]
+        DomainError[] errors = new[]
         {
             DomainError.Validation("VALIDATION.1", "First validation error"),
             DomainError.Validation("VALIDATION.2", "Second validation error")
@@ -25,7 +25,7 @@ public class ValidationErrorTests
     public void Constructor_SetsValidationType()
     {
         // Arrange
-        var errors = new[] { DomainError.Validation("CODE", "Description") };
+        DomainError[] errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -38,7 +38,7 @@ public class ValidationErrorTests
     public void Constructor_SetsDefaultCodeAndDescription()
     {
         // Arrange
-        var errors = new[] { DomainError.Validation("CODE", "Description") };
+        DomainError[] errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -52,7 +52,7 @@ public class ValidationErrorTests
     public void FromResults_CreatesValidationErrorFromFailedResults()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Failure(DomainError.Validation("VALIDATION.1", "First error")),
             Result.Success(),
@@ -69,10 +69,29 @@ public class ValidationErrorTests
     }
 
     [Fact]
+    public void FromResults_WithValueResults_PreservesFailureOrder()
+    {
+        // Arrange
+        Result<int>[] results = new[]
+        {
+            Result.Failure<int>(DomainError.Validation("VALIDATION.FIRST", "First error")),
+            Result.Success(42),
+            Result.Failure<int>(DomainError.Validation("VALIDATION.SECOND", "Second error"))
+        };
+
+        // Act
+        var validationError = ValidationError.FromResults(results);
+
+        // Assert
+        validationError.Errors.Select(error => error.Code).Should()
+            .Equal("VALIDATION.FIRST", "VALIDATION.SECOND");
+    }
+
+    [Fact]
     public void FromResults_IgnoresSuccessfulResults()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Success(),
             Result.Success(),
@@ -91,7 +110,7 @@ public class ValidationErrorTests
     public void FromResults_ReturnsEmptyErrorArray_WhenAllResultsSucceed()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Success(),
             Result.Success()
@@ -108,7 +127,7 @@ public class ValidationErrorTests
     public void ValidationError_IsAnError()
     {
         // Arrange
-        var errors = new[] { DomainError.Validation("CODE", "Description") };
+        DomainError[] errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -121,7 +140,7 @@ public class ValidationErrorTests
     public void ValidationError_CanBeUsedInResult()
     {
         // Arrange
-        var errors = new[] { DomainError.Validation("CODE", "Description") };
+        DomainError[] errors = new[] { DomainError.Validation("CODE", "Description") };
         var validationError = new ValidationError(errors);
 
         // Act
@@ -139,7 +158,7 @@ public class ValidationErrorTests
         // Arrange
         var error1 = DomainError.Validation("FIELD.REQUIRED", "Field is required");
         var error2 = DomainError.Validation("FIELD.TOOLONG", "Field is too long");
-        var errors = new[] { error1, error2 };
+        DomainError[] errors = new[] { error1, error2 };
 
         // Act
         var validationError = new ValidationError(errors);
@@ -153,7 +172,7 @@ public class ValidationErrorTests
     public void FromResults_WorksWithEmptyResultCollection()
     {
         // Arrange
-        var results = Array.Empty<Result>();
+        Result[] results = Array.Empty<Result>();
 
         // Act
         var validationError = ValidationError.FromResults(results);
@@ -166,7 +185,7 @@ public class ValidationErrorTests
     public void ValidationError_SupportsRecordEquality()
     {
         // Arrange
-        var errors = new[] { DomainError.Validation("CODE", "Description") };
+        DomainError[] errors = new[] { DomainError.Validation("CODE", "Description") };
         var validationError1 = new ValidationError(errors);
         var validationError2 = new ValidationError(errors);
 
@@ -178,7 +197,7 @@ public class ValidationErrorTests
     public void ValidationError_CanContainMixedErrorTypes()
     {
         // Arrange
-        var errors = new[]
+        DomainError[] errors = new[]
         {
             DomainError.Validation("VALIDATION.1", "Validation error"),
             DomainError.Failure("FAILURE.1", "Failure error"),
@@ -199,9 +218,9 @@ public class ValidationErrorTests
     public void FromResults_PreservesErrorDetails()
     {
         // Arrange
-        var expectedCode = "VALIDATION.CUSTOM";
-        var expectedDescription = "Custom validation failed";
-        var results = new[]
+        string expectedCode = "VALIDATION.CUSTOM";
+        string expectedDescription = "Custom validation failed";
+        Result[] results = new[]
         {
             Result.Failure(DomainError.Validation(expectedCode, expectedDescription))
         };
@@ -219,7 +238,7 @@ public class ValidationErrorTests
     public void ValidationError_ToString_IncludesErrorCount()
     {
         // Arrange
-        var errors = new[]
+        DomainError[] errors = new[]
         {
             DomainError.Validation("CODE1", "Description1"),
             DomainError.Validation("CODE2", "Description2")
@@ -227,7 +246,7 @@ public class ValidationErrorTests
         var validationError = new ValidationError(errors);
 
         // Act
-        var toString = validationError.ToString();
+        string toString = validationError.ToString();
 
         // Assert
         toString.Should().Contain("Validation.General");
@@ -237,7 +256,7 @@ public class ValidationErrorTests
     public void ValidationError_WithSingleError_StillReturnsArray()
     {
         // Arrange
-        var errors = new[] { DomainError.Validation("CODE", "Description") };
+        DomainError[] errors = new[] { DomainError.Validation("CODE", "Description") };
 
         // Act
         var validationError = new ValidationError(errors);

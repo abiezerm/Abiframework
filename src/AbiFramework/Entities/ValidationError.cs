@@ -6,4 +6,7 @@ public sealed record ValidationError(DomainError[] Errors) : DomainError("Valida
 {
     public static ValidationError FromResults(IEnumerable<Result> results) =>
         new(results.Where(r => r.IsFailure).Select(r => r.Error).ToArray());
+
+    public static ValidationError FromResults<T>(IEnumerable<Result<T>> results) where T : notnull =>
+        new(results.Where(r => r.IsFailure).Select(r => r.Error).ToArray());
 }

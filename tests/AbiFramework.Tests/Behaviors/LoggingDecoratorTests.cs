@@ -37,7 +37,7 @@ public class LoggingDecoratorTests
             _queryLogger.Object);
 
         // Act
-        var result = await decorator.Handle(query, CancellationToken.None);
+        Result<string> result = await decorator.Handle(query, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -61,7 +61,7 @@ public class LoggingDecoratorTests
             _queryLogger.Object);
 
         // Act
-        var result = await decorator.Handle(query, CancellationToken.None);
+        Result<string> result = await decorator.Handle(query, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -104,7 +104,7 @@ public class LoggingDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -128,7 +128,7 @@ public class LoggingDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -171,7 +171,7 @@ public class LoggingDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -195,7 +195,7 @@ public class LoggingDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -250,50 +250,36 @@ public class LoggingDecoratorTests
 
     private static void VerifyLogInformationCalled<T>(Mock<ILogger<T>> logger, string message)
     {
-        logger.Verify(
-            x => x.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(message)),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.AtLeastOnce);
+        logger.Invocations.Should().Contain(invocation =>
+            invocation.Method.Name == nameof(ILogger.Log)
+            && Equals(invocation.Arguments[0], LogLevel.Information)
+            && invocation.Arguments[2].ToString()!.Contains(message));
     }
 
     private static void VerifyLogInformationContains<T>(Mock<ILogger<T>> logger, string contains)
     {
-        logger.Verify(
-            x => x.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(contains)),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.AtLeastOnce);
+        logger.Invocations.Should().Contain(invocation =>
+            invocation.Method.Name == nameof(ILogger.Log)
+            && Equals(invocation.Arguments[0], LogLevel.Information)
+            && invocation.Arguments[2].ToString()!.Contains(contains));
     }
 
     private static void VerifyLogWarningContains<T>(Mock<ILogger<T>> logger, string contains)
     {
-        logger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(contains)),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.AtLeastOnce);
+        logger.Invocations.Should().Contain(invocation =>
+            invocation.Method.Name == nameof(ILogger.Log)
+            && Equals(invocation.Arguments[0], LogLevel.Warning)
+            && invocation.Arguments[2].ToString()!.Contains(contains));
     }
 
     private static void VerifyLogErrorCalled<T>(Mock<ILogger<T>> logger, Exception exception)
     {
-        logger.Verify(
-            x => x.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                exception,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+        logger.Invocations
+            .Where(invocation => invocation.Method.Name == nameof(ILogger.Log)
+                && Equals(invocation.Arguments[0], LogLevel.Error)
+                && ReferenceEquals(invocation.Arguments[3], exception))
+            .Should()
+            .ContainSingle();
     }
 
     internal record TestQuery : IQuery<string>;

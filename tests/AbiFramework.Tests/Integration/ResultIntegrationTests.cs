@@ -1,7 +1,17 @@
 using AbiFramework.Entities;
+using AbiFramework.Messaging;
 using AbiFramework.Web;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Net;
+using System.Text.Json;
 
 namespace AbiFramework.Tests.Integration;
 
@@ -14,11 +24,11 @@ public class ResultIntegrationTests
     public void Result_CanBeUsedInWebApiPattern()
     {
         // Arrange
-        var userId = 123;
+        int userId = 123;
         var result = Result.Success(userId);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
         httpResult.Should().BeOfType<Ok<int>>();
@@ -34,10 +44,10 @@ public class ResultIntegrationTests
         var result = Result.Failure<int>(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
@@ -49,8 +59,8 @@ public class ResultIntegrationTests
         var failureResult = Result.Failure<int>(DomainError.Failure("CODE", "Description"));
 
         // Act
-        var successValue = successResult.IsSuccess ? successResult.Value : 0;
-        var failureValue = failureResult.IsSuccess ? failureResult.Value : 0;
+        int successValue = successResult.IsSuccess ? successResult.Value : 0;
+        int failureValue = failureResult.IsSuccess ? failureResult.Value : 0;
 
         // Assert
         successValue.Should().Be(42);
@@ -61,7 +71,7 @@ public class ResultIntegrationTests
     public void ValidationError_CanBeUsedWithResult_AndCustomResults()
     {
         // Arrange
-        var errors = new[]
+        DomainError[] errors = new[]
         {
             DomainError.Validation("FIELD1.REQUIRED", "Field 1 is required"),
             DomainError.Validation("FIELD2.INVALID", "Field 2 is invalid")
@@ -70,10 +80,10 @@ public class ResultIntegrationTests
         var result = Result.Failure(validationError);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         problemResult.ProblemDetails.Extensions["code"].Should().Be("Validation.General");
     }
@@ -91,10 +101,10 @@ public class ResultIntegrationTests
         var result = Result.Failure<string>(error);
 
         // Act
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
+        ProblemHttpResult problemResult = httpResult.Should().BeOfType<ProblemHttpResult>().Subject;
         problemResult.StatusCode.Should().Be(expectedStatusCode);
     }
 
@@ -111,12 +121,12 @@ public class ResultIntegrationTests
 
         // Act
         var result = Result.Success(order);
-        var httpResult = CustomResults.Problem(result);
+        IResult httpResult = CustomResults.Problem(result);
 
         // Assert
-        var okResult = httpResult.Should().BeOfType<Ok<Order>>().Subject;
+        Ok<Order> okResult = httpResult.Should().BeOfType<Ok<Order>>().Subject;
         okResult.Value.Should().Be(order);
-        okResult.Value.Id.Should().Be(1);
+        okResult.Value!.Id.Should().Be(1);
         okResult.Value.CustomerName.Should().Be("John Doe");
     }
 
@@ -138,7 +148,7 @@ public class ResultIntegrationTests
     public void ErrorChaining_PreservesInformation()
     {
         // Arrange
-        var results = new[]
+        Result[] results = new[]
         {
             Result.Failure(DomainError.Validation("FIELD1.REQUIRED", "Field 1 required")),
             Result.Failure(DomainError.Validation("FIELD2.REQUIRED", "Field 2 required"))
@@ -155,11 +165,11 @@ public class ResultIntegrationTests
     }
 
     [Fact]
-    public void Result_HandlesAsyncOperations()
+    public async Task Result_HandlesAsyncOperations()
     {
         // Arrange & Act
-        var task = Task.FromResult(Result.Success(42));
-        var result = task.Result;
+        Task<Result<int>> task = Task.FromResult(Result.Success(42));
+        Result<int> result = await task;
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -170,7 +180,7 @@ public class ResultIntegrationTests
     public void Result_CanBeUsedWithLinq()
     {
         // Arrange
-        var results = new[]
+        Result<int>[] results = new[]
         {
             Result.Success(1),
             Result.Success(2),
@@ -191,19 +201,53 @@ public class ResultIntegrationTests
     public void Result_SupportsGuardClauses()
     {
         // Arrange
-        var result = GetUserById(999);
+        Result<User> result = GetUserById(999);
 
         // Act
         if (result.IsFailure)
         {
             // Early return pattern
-            var httpResult = CustomResults.Problem(result);
+            IResult httpResult = CustomResults.Problem(result);
             httpResult.Should().BeOfType<ProblemHttpResult>();
             return;
         }
 
         // This would normally continue with the success path
         Assert.Fail("Should have returned early");
+    }
+
+    [Fact]
+    public async Task ToHttpResult_MapsSuccessAndProblemResponsesOverHttp()
+    {
+        using ResultApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage success = await client.GetAsync("/results/42");
+        string successBody = await success.Content.ReadAsStringAsync();
+        HttpResponseMessage failure = await client.GetAsync("/results/0");
+        using var problem = JsonDocument.Parse(await failure.Content.ReadAsStringAsync());
+
+        success.StatusCode.Should().Be(HttpStatusCode.OK);
+        successBody.Should().Be("42");
+        failure.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        problem.RootElement.GetProperty("code").GetString().Should().Be("RESULT.NOTFOUND");
+    }
+
+    [Fact]
+    public async Task ToHttpResult_OpenApiListsSuccessAndProblemResponses()
+    {
+        using ResultApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        using var document = JsonDocument.Parse(await client.GetStringAsync("/openapi/v1.json"));
+
+        JsonElement responses = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/results/{id}")
+            .GetProperty("get")
+            .GetProperty("responses");
+
+        responses.TryGetProperty("200", out _).Should().BeTrue();
+        responses.TryGetProperty("500", out _).Should().BeTrue();
     }
 
     private static Result<string> GetNullableString(string? value)
@@ -219,6 +263,46 @@ public class ResultIntegrationTests
         }
 
         return Result.Success(new User { Id = id, Name = "Test User" });
+    }
+
+    public sealed record ResultCommand(int Id) : ICommand<int>;
+
+    public sealed class ResultCommandHandler : ICommandHandler<ResultCommand, int>
+    {
+        public Task<Result<int>> Handle(ResultCommand command, CancellationToken cancellationToken) =>
+            Task.FromResult<Result<int>>(command.Id == 0
+                ? DomainError.NotFound("RESULT.NOTFOUND", "Result not found")
+                : command.Id);
+    }
+
+    public sealed class ResultApiFactory : WebApplicationFactory<ResultIntegrationTests>
+    {
+        protected override void ConfigureWebHost(IWebHostBuilder builder) =>
+            builder.UseContentRoot(AppContext.BaseDirectory);
+
+        protected override IHostBuilder CreateHostBuilder() => new HostBuilder()
+            .ConfigureWebHost(webHostBuilder => webHostBuilder
+                .UseEnvironment("Development")
+                .UseContentRoot(AppContext.BaseDirectory)
+                .UseTestServer()
+                .ConfigureServices(services =>
+                {
+                    services.AddRouting();
+                    services.AddSingleton<ICommandHandler<ResultCommand, int>, ResultCommandHandler>();
+                    services.AddOpenApi();
+                })
+                .Configure(app =>
+                {
+                    app.UseRouting();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapGet("/results/{id:int}", (int id,
+                            ICommandHandler<ResultCommand, int> handler,
+                            CancellationToken cancellationToken) =>
+                            handler.Handle(new ResultCommand(id), cancellationToken).ToHttpResult());
+                        endpoints.MapOpenApi();
+                    });
+                }));
     }
 
     private class Order

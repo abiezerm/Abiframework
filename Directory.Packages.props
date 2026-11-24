@@ -2,21 +2,22 @@
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
-    <!--.NET 10 packages. Most of them will work on .NET 8. If you need to, make the updates here individually.-->
+    <!-- .NET 11 packages. -->
     <ItemGroup>
         <PackageVersion Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
-        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
         <PackageVersion Include="FluentValidation" Version="12.1.1" />
-        <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.15.0.81779" />
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+        <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.37.0.15768" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Logging" Version="11.0.0" />
         <PackageVersion Include="Scrutor" Version="6.1.0" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
         <!-- Test-only -->
         <PackageVersion Include="coverlet.collector" Version="6.0.0" />
         <PackageVersion Include="FluentAssertions" Version="7.0.0" />
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.12.0" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
         <PackageVersion Include="Moq" Version="4.20.70" />
         <PackageVersion Include="xunit" Version="2.6.2" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.4" />
