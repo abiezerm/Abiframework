@@ -28,7 +28,7 @@ public class ValidationDecoratorTests
         innerHandler.Setup(h => h.Handle(command, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);
 
-        var validators = Enumerable.Empty<IValidator<TestCommand>>();
+        IEnumerable<IValidator<TestCommand>> validators = Enumerable.Empty<IValidator<TestCommand>>();
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand, int>(
             innerHandler.Object,
@@ -36,7 +36,7 @@ public class ValidationDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -57,7 +57,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand, int>(
             innerHandler.Object,
@@ -65,7 +65,7 @@ public class ValidationDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -87,7 +87,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(new[] { validationFailure }));
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand, int>(
             innerHandler.Object,
@@ -95,7 +95,7 @@ public class ValidationDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -119,7 +119,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(new[] { validationFailure }));
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand, int>(
             innerHandler.Object,
@@ -148,7 +148,7 @@ public class ValidationDecoratorTests
         var innerHandler = new Mock<ICommandHandler<TestCommand, int>>();
 
         var validator = new Mock<IValidator<TestCommand>>();
-        var validationFailures = new[]
+        ValidationFailure[] validationFailures = new[]
         {
             new ValidationFailure("Value", "Value is required") { ErrorCode = "VALUE_REQUIRED" },
             new ValidationFailure("Value", "Value must be at least 5 characters") { ErrorCode = "VALUE_TOO_SHORT" }
@@ -156,7 +156,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(validationFailures));
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand, int>(
             innerHandler.Object,
@@ -164,7 +164,7 @@ public class ValidationDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -182,7 +182,7 @@ public class ValidationDecoratorTests
         innerHandler.Setup(h => h.Handle(command, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);
 
-        var validators = Enumerable.Empty<IValidator<TestCommand>>();
+        IEnumerable<IValidator<TestCommand>> validators = Enumerable.Empty<IValidator<TestCommand>>();
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand>(
             innerHandler.Object,
@@ -190,7 +190,7 @@ public class ValidationDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -211,7 +211,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand>(
             innerHandler.Object,
@@ -219,7 +219,7 @@ public class ValidationDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -241,7 +241,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(new[] { validationFailure }));
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand>(
             innerHandler.Object,
@@ -249,7 +249,7 @@ public class ValidationDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -273,7 +273,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(new[] { validationFailure }));
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand>(
             innerHandler.Object,
@@ -302,7 +302,7 @@ public class ValidationDecoratorTests
         var innerHandler = new Mock<ICommandHandler<TestCommand>>();
 
         var validator = new Mock<IValidator<TestCommand>>();
-        var validationFailures = new[]
+        ValidationFailure[] validationFailures = new[]
         {
             new ValidationFailure("Value", "Value is required") { ErrorCode = "VALUE_REQUIRED" },
             new ValidationFailure("Value", "Value must be at least 5 characters") { ErrorCode = "VALUE_TOO_SHORT" }
@@ -310,7 +310,7 @@ public class ValidationDecoratorTests
         validator.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult(validationFailures));
 
-        var validators = new[] { validator.Object };
+        IValidator<TestCommand>[] validators = new[] { validator.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand>(
             innerHandler.Object,
@@ -318,7 +318,7 @@ public class ValidationDecoratorTests
             _commandLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -343,7 +343,7 @@ public class ValidationDecoratorTests
         validator2.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestCommand>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
-        var validators = new[] { validator1.Object, validator2.Object };
+        IValidator<TestCommand>[] validators = new[] { validator1.Object, validator2.Object };
 
         var decorator = new ValidationDecorator.CommandHandler<TestCommand, int>(
             innerHandler.Object,
@@ -351,7 +351,7 @@ public class ValidationDecoratorTests
             _commandWithResponseLogger.Object);
 
         // Act
-        var result = await decorator.Handle(command, CancellationToken.None);
+        Result<int> result = await decorator.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().Be(expectedResult);

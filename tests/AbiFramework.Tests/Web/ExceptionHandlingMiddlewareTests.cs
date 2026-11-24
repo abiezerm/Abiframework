@@ -9,6 +9,11 @@ namespace AbiFramework.Tests.Web;
 
 public class ExceptionHandlingMiddlewareTests
 {
+    private static readonly JsonSerializerOptions ErrorResponseJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly Mock<ILogger<ExceptionHandlingMiddleware>> _logger;
     private readonly Mock<RequestDelegate> _next;
 
@@ -111,11 +116,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.Detail.Should().Be("An error occurred while processing your request.");
@@ -130,7 +136,7 @@ public class ExceptionHandlingMiddlewareTests
         context.Response.Body = new MemoryStream();
         context.Request.Headers["X-Debug"] = "true";
 
-        var exceptionMessage = "Detailed error message";
+        string exceptionMessage = "Detailed error message";
         _next.Setup(n => n(It.IsAny<HttpContext>()))
             .ThrowsAsync(new InvalidOperationException(exceptionMessage));
 
@@ -139,11 +145,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.Detail.Should().Be(exceptionMessage);
@@ -166,11 +173,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.StackTrace.Should().NotBeNullOrEmpty();
@@ -192,11 +200,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.StackTrace.Should().BeNull();
@@ -220,11 +229,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.InnerException.Should().Be("Inner exception message");
@@ -247,11 +257,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.TraceId.Should().Be("test-trace-id");
@@ -274,11 +285,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.Instance.Should().Be("/api/test");
@@ -300,11 +312,12 @@ public class ExceptionHandlingMiddlewareTests
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+        string responseBody;
+        using (StreamReader reader = new(context.Response.Body, leaveOpen: true))
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            responseBody = await reader.ReadToEndAsync();
+        }
+        ErrorResponse? response = JsonSerializer.Deserialize<ErrorResponse>(responseBody, ErrorResponseJsonOptions);
 
         response.Should().NotBeNull();
         response!.Status.Should().Be(500);
@@ -322,7 +335,7 @@ public class ExceptionHandlingMiddlewareTests
         app.UseExceptionHandling();
 
         // Assert
-        var middleware = app.Build();
+        RequestDelegate middleware = app.Build();
         middleware.Should().NotBeNull();
     }
 
@@ -335,13 +348,13 @@ public class ExceptionHandlingMiddlewareTests
         var app = new ApplicationBuilder(services.BuildServiceProvider());
 
         // Act
-        var result = app.UseExceptionHandling();
+        IApplicationBuilder result = app.UseExceptionHandling();
 
         // Assert
         result.Should().BeSameAs(app);
     }
 
-    private class ErrorResponse
+    public class ErrorResponse
     {
         public int Status { get; set; }
         public string Title { get; set; } = string.Empty;

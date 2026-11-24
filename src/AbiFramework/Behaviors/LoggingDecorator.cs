@@ -9,6 +9,7 @@ public static class LoggingDecorator
 {
     public class QueryHandler<TQuery, TResponse> : IQueryHandler<TQuery, TResponse>
         where TQuery : IQuery<TResponse>
+        where TResponse : notnull
     {
         private readonly IQueryHandler<TQuery, TResponse> _inner;
         private readonly ILogger<QueryHandler<TQuery, TResponse>> _logger;
@@ -78,6 +79,7 @@ public static class LoggingDecorator
 
     public class CommandHandler<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
+        where TResponse : notnull
     {
         private readonly ICommandHandler<TCommand, TResponse> _inner;
         private readonly ILogger<CommandHandler<TCommand, TResponse>> _logger;

@@ -17,6 +17,7 @@ public static class ValidationDecorator
     /// <typeparam name="TResponse">The type of the response.</typeparam>
     public class CommandHandler<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
+        where TResponse : notnull
     {
         private readonly ICommandHandler<TCommand, TResponse> _inner;
         private readonly IEnumerable<IValidator<TCommand>> _validators;
@@ -66,7 +67,7 @@ public static class ValidationDecorator
                 _logger.LogWarning("Validation failed for command {CommandType}: {Errors}",
                     typeof(TCommand).Name, errorMessage);
                 var domainError = DomainError.Validation(errorCode, errorMessage);
-                return new Result<TResponse>(default, false, domainError);
+                return domainError;
             }
 
             return await _inner.Handle(command, cancellationToken);
