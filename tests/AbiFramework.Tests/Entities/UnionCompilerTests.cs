@@ -50,6 +50,7 @@ public class UnionCompilerTests
         ImmutableArray<Diagnostic> diagnostics = Compile(source);
 
         diagnostics.Should().NotContain(diagnostic => diagnostic.Id == NonExhaustiveSwitchDiagnosticId);
+        diagnostics.Should().NotContain(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
     }
 
     [Fact]
