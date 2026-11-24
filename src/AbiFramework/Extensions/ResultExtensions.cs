@@ -9,12 +9,7 @@ public static class ResultExtensions
         Func<TOut> onSuccess,
         Func<Result, TOut> onFailure)
     {
-        return result switch
-        {
-            Unit => onSuccess(),
-            DomainError => onFailure(result),
-            null => onFailure(result)
-        };
+        return result.IsSuccess ? onSuccess() : onFailure(result);
     }
 
     public static TOut Match<TIn, TOut>(
@@ -23,12 +18,7 @@ public static class ResultExtensions
         Func<Result<TIn>, TOut> onFailure)
         where TIn : notnull
     {
-        return result switch
-        {
-            TIn value => onSuccess(value),
-            DomainError => onFailure(result),
-            null => onFailure(result)
-        };
+        return result.IsSuccess ? onSuccess(result.Value) : onFailure(result);
     }
 }
 

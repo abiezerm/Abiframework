@@ -355,6 +355,8 @@ AbiFramework 8.0.0 targets **.NET 11.0** and requires the .NET 11 SDK to build c
 - Remove uses of `Result<T?>`, nullable-result checks, and code passing `Result<T>` where `Result` is expected.
 - Replace the removed `(value, isSuccess, error)` constructors with implicit conversions (`return value;`, `return error;`) or the static `Success` and `Failure` factories.
 - Replace mixed-type `ValidationError.FromResults` inputs with the overload matching the result type (`IEnumerable<Result>` or `IEnumerable<Result<T>>`).
+- Failures cannot be built from `DomainError.None` or `null`: `Result.Failure(...)`, `Result<T>.Failure(...)`, `ValidationFailure(...)` and the implicit conversion from `DomainError` throw `ArgumentException("Invalid error")` (`ArgumentNullException` for `null`), as in 7.x.
+- `Result<T>` tracks success and failure with an explicit tag, so `Result<object>`, `Result<DomainError>` and other overlapping payload types keep the two cases distinct in `IsSuccess`, `Error`, `Value`, `Match`, `ToHttpResult()` and equality. Language limitation: when `T` is `object` (or another supertype of `DomainError`), a consumer `switch` whose `T` arm comes first or stands alone also matches a failure, and a later `DomainError` arm is reported unreachable (CS8510). For those types, branch on `IsSuccess`/`IsFailure` or list the `DomainError` arm first.
 - `Result` is a domain value, not an HTTP response DTO. Existing `result.Match(...)` and `CustomResults.Problem(...)` calls keep working unchanged; use `ToHttpResult()` as an optional one-call shortcut at the endpoint boundary.
 
 ## Contributing

@@ -9,30 +9,24 @@ namespace AbiFramework.Web;
 /// </summary>
 public static class ResultHttpExtensions
 {
-    public static Results<Ok<T>, DomainProblemResult> ToHttpResult<T>(this Result<T> result) where T : notnull => result switch
-    {
-        T value => TypedResults.Ok(value),
-        DomainError error => new DomainProblemResult(error),
-        null => new DomainProblemResult(DomainError.NullValue)
-    };
+    public static Results<Ok<T>, DomainProblemResult> ToHttpResult<T>(this Result<T> result) where T : notnull =>
+        result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : new DomainProblemResult(result.Error);
 
     public static Results<TOk, DomainProblemResult> ToHttpResult<T, TOk>(
         this Result<T> result,
         Func<T, TOk> onSuccess)
         where T : notnull
-        where TOk : IResult => result switch
-    {
-        T value => onSuccess(value),
-        DomainError error => new DomainProblemResult(error),
-        null => new DomainProblemResult(DomainError.NullValue)
-    };
+        where TOk : IResult =>
+        result.IsSuccess
+            ? onSuccess(result.Value)
+            : new DomainProblemResult(result.Error);
 
-    public static Results<Ok, DomainProblemResult> ToHttpResult(this Result result) => result switch
-    {
-        Unit => TypedResults.Ok(),
-        DomainError error => new DomainProblemResult(error),
-        null => new DomainProblemResult(DomainError.NullValue)
-    };
+    public static Results<Ok, DomainProblemResult> ToHttpResult(this Result result) =>
+        result.IsSuccess
+            ? TypedResults.Ok()
+            : new DomainProblemResult(result.Error);
 
     public static async Task<Results<Ok<T>, DomainProblemResult>> ToHttpResult<T>(this Task<Result<T>> task)
         where T : notnull => (await task).ToHttpResult();

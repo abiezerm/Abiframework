@@ -7,7 +7,7 @@ public struct Result : IUnion, IEquatable<Result>
 {
     public Result(Unit value) => Value = value;
 
-    public Result(DomainError value) => Value = value;
+    public Result(DomainError value) => Value = RequireFailure(value);
 
     public object? Value { get; }
 
@@ -32,6 +32,15 @@ public struct Result : IUnion, IEquatable<Result>
         _ => DomainError.None
     };
 
+    internal static DomainError RequireFailure(DomainError? error)
+    {
+        ArgumentNullException.ThrowIfNull(error);
+
+        return error == DomainError.None
+            ? throw new ArgumentException("Invalid error", nameof(error))
+            : error;
+    }
+
     public static Result Success() => Unit.Value;
 
     public static Result<TValue> Success<TValue>(TValue value) where TValue : notnull => value;
@@ -41,12 +50,41 @@ public struct Result : IUnion, IEquatable<Result>
     public static Result<TValue> Failure<TValue>(DomainError error) where TValue : notnull => error;
 }
 
+/// <summary>
+/// A union of a success value (<typeparamref name="TValue"/>) or a failure (<see cref="DomainError"/>).
+/// </summary>
+/// <remarks>
+/// The case is tracked by an explicit tag, never by a runtime type test of the payload, so
+/// <c>Result&lt;object&gt;</c> and <c>Result&lt;DomainError&gt;</c> keep successes and failures distinct.
+/// When a consumer <c>switch</c> tests the <see cref="DomainError"/> arm before the <typeparamref name="TValue"/>
+/// arm, the <c>TryGetValue</c> overloads keep the cases distinct. Language limitation: when <typeparamref name="TValue"/> is
+/// <see cref="object"/> (or another supertype of <see cref="DomainError"/>), a consumer <c>switch</c> whose
+/// <typeparamref name="TValue"/> arm comes first or stands alone matches a failure as well, and the compiler
+/// reports the later <see cref="DomainError"/> arm as unreachable (CS8510). For such types, branch on
+/// <see cref="IsSuccess"/> / <see cref="IsFailure"/>, or put the <see cref="DomainError"/> arm first.
+/// The library itself never relies on pattern matching over the payload.
+/// </remarks>
 [Union]
 public struct Result<TValue> : Result<TValue>.IUnionMembers, IEquatable<Result<TValue>> where TValue : notnull
 {
-    private readonly object? _value;
+    private readonly object? _payload;
 
-    private Result(object? value) => _value = value;
+    private Result(TValue? value)
+    {
+        if (value is null)
+        {
+            _payload = DomainError.NullValue;
+            return;
+        }
+
+        _payload = value;
+        IsSuccess = true;
+    }
+
+    private Result(DomainError error)
+    {
+        _payload = Result.RequireFailure(error);
+    }
 
     public interface IUnionMembers
     {
@@ -57,36 +95,49 @@ public struct Result<TValue> : Result<TValue>.IUnionMembers, IEquatable<Result<T
         object? Value { get; }
     }
 
-    object? IUnionMembers.Value => _value;
+    object? IUnionMembers.Value => _payload;
 
-    public bool Equals(Result<TValue> other) => Equals(_value, other._value);
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public DomainError Error => IsSuccess
+        ? DomainError.None
+        : _payload as DomainError ?? DomainError.NullValue;
+
+    public TValue Value => IsSuccess
+        ? (TValue)_payload!
+        : throw new InvalidOperationException("The value of a failure result can't be accessed.");
+
+    /// <summary>Case-aware pattern member: succeeds only for a success result.</summary>
+    public bool TryGetValue(out TValue value)
+    {
+        value = IsSuccess ? (TValue)_payload! : default!;
+        return IsSuccess;
+    }
+
+    /// <summary>Case-aware pattern member: succeeds only for a failure result.</summary>
+    public bool TryGetValue(out DomainError error)
+    {
+        bool isFailure = !IsSuccess && _payload is DomainError;
+        error = isFailure ? (DomainError)_payload! : default!;
+        return isFailure;
+    }
+
+    public bool Equals(Result<TValue> other) =>
+        IsSuccess == other.IsSuccess && Equals(_payload, other._payload);
 
     public override bool Equals(object? obj) => obj is Result<TValue> other && Equals(other);
 
-    public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+    public override int GetHashCode() => HashCode.Combine(IsSuccess, _payload);
 
     public static bool operator ==(Result<TValue> left, Result<TValue> right) => left.Equals(right);
 
     public static bool operator !=(Result<TValue> left, Result<TValue> right) => !left.Equals(right);
 
-    public bool IsSuccess => _value is TValue;
+    public static Result<TValue> Success(TValue value) => new(value);
 
-    public bool IsFailure => !IsSuccess;
+    public static Result<TValue> Failure(DomainError error) => new(error);
 
-    public DomainError Error => _value switch
-    {
-        DomainError error => error,
-        null => DomainError.NullValue,
-        _ => DomainError.None
-    };
-
-    public TValue Value => _value is TValue value
-        ? value
-        : throw new InvalidOperationException("The value of a failure result can't be accessed.");
-
-    public static Result<TValue> Success(TValue value) => value;
-
-    public static Result<TValue> Failure(DomainError error) => error;
-
-    public static Result<TValue> ValidationFailure(DomainError error) => error;
+    public static Result<TValue> ValidationFailure(DomainError error) => new(error);
 }

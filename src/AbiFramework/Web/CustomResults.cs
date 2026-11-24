@@ -12,22 +12,18 @@ public static class CustomResults
     /// <summary>
     /// Converts a non-value result to an HTTP result.
     /// </summary>
-    public static IResult Problem(Result result) => result switch
-    {
-        Unit => TypedResults.Ok(),
-        DomainError error => BuildProblem(error),
-        null => BuildProblem(DomainError.NullValue)
-    };
+    public static IResult Problem(Result result) =>
+        result.IsSuccess
+            ? TypedResults.Ok()
+            : BuildProblem(result.Error);
 
     /// <summary>
     /// Converts a value result to an HTTP result.
     /// </summary>
-    public static IResult Problem<T>(Result<T> result) where T : notnull => result switch
-    {
-        T value => TypedResults.Ok(value),
-        DomainError error => BuildProblem(error),
-        null => BuildProblem(DomainError.NullValue)
-    };
+    public static IResult Problem<T>(Result<T> result) where T : notnull =>
+        result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : BuildProblem(result.Error);
 
     /// <summary>
     /// Creates an RFC 7807 problem response from a domain error.
