@@ -55,13 +55,17 @@ public struct Result : IUnion, IEquatable<Result>
 /// </summary>
 /// <remarks>
 /// The case is tracked by an explicit tag, never by a runtime type test of the payload, so
-/// <c>Result&lt;object&gt;</c> and <c>Result&lt;DomainError&gt;</c> keep successes and failures distinct.
-/// When a consumer <c>switch</c> tests the <see cref="DomainError"/> arm before the <typeparamref name="TValue"/>
-/// arm, the <c>TryGetValue</c> overloads keep the cases distinct. Language limitation: when <typeparamref name="TValue"/> is
-/// <see cref="object"/> (or another supertype of <see cref="DomainError"/>), a consumer <c>switch</c> whose
-/// <typeparamref name="TValue"/> arm comes first or stands alone matches a failure as well, and the compiler
-/// reports the later <see cref="DomainError"/> arm as unreachable (CS8510). For such types, branch on
-/// <see cref="IsSuccess"/> / <see cref="IsFailure"/>, or put the <see cref="DomainError"/> arm first.
+/// <c>Result&lt;object&gt;</c> and <c>Result&lt;DomainError&gt;</c> keep successes and failures distinct in
+/// <see cref="IsSuccess"/>, <see cref="Error"/>, <see cref="Value"/>, equality, <c>Match</c> and the HTTP adapters.
+/// <para>
+/// The exhaustive <c>switch</c> contract (one <typeparamref name="TValue"/> arm and one <see cref="DomainError"/> arm,
+/// with missing arms reported by the compiler) applies only when <typeparamref name="TValue"/> does not overlap
+/// <see cref="DomainError"/>: it is not <see cref="DomainError"/>, a type derived from it, or a supertype of it such as
+/// <see cref="object"/>. For overlapping types, branch on <see cref="IsSuccess"/> / <see cref="IsFailure"/> or use
+/// <c>Match</c>. A <c>switch</c> on an overlapping type is not reliable: the case-aware <see cref="IUnionMembers"/>
+/// accessors route a <see cref="DomainError"/>-first switch by case, but an arm for a supertype such as
+/// <see cref="object"/> also matches failures, and the compiler cannot report the missing case.
+/// </para>
 /// The library itself never relies on pattern matching over the payload.
 /// </remarks>
 [Union]
@@ -93,9 +97,21 @@ public struct Result<TValue> : Result<TValue>.IUnionMembers, IEquatable<Result<T
         static Result<TValue> Create(DomainError value) => new(value);
 
         object? Value { get; }
+
+        bool HasValue { get; }
+
+        bool TryGetValue(out TValue value);
+
+        bool TryGetValue(out DomainError value);
     }
 
     object? IUnionMembers.Value => _payload;
+
+    bool IUnionMembers.HasValue => _payload is not null;
+
+    bool IUnionMembers.TryGetValue(out TValue value) => TryGetValue(out value);
+
+    bool IUnionMembers.TryGetValue(out DomainError value) => TryGetValue(out value);
 
     public bool IsSuccess { get; }
 

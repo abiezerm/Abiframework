@@ -33,6 +33,34 @@ public class ResultCaseIdentityTests
     }
 
     [Fact]
+    public void ObjectResult_SuccessCarryingDomainError_MatchesSuccessArmInDomainErrorFirstSwitch()
+    {
+        var success = Result<object>.Success(Conflict);
+        var failure = Result<object>.Failure(Conflict);
+
+        Describe(success).Should().Be("success");
+        Describe(failure).Should().Be("failure");
+
+        static string Describe(Result<object> result) => result switch
+        {
+            DomainError => "failure",
+            object => "success",
+            null => "empty",
+        };
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void DomainErrorResult_MatchAndIsSuccess_KeepCasesDistinct(bool succeed)
+    {
+        Result<DomainError> result = succeed ? Result<DomainError>.Success(Conflict) : Result<DomainError>.Failure(Conflict);
+
+        result.IsSuccess.Should().Be(succeed);
+        result.Match(_ => "success", _ => "failure").Should().Be(succeed ? "success" : "failure");
+    }
+
+    [Fact]
     public void DomainErrorResult_SuccessAndFailure_StayDistinct()
     {
         var success = Result<DomainError>.Success(Conflict);
