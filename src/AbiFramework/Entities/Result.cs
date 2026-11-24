@@ -105,9 +105,9 @@ public struct Result<TValue> : Result<TValue>.IUnionMembers, IEquatable<Result<T
         bool TryGetValue(out DomainError value);
     }
 
-    object? IUnionMembers.Value => _payload;
+    object IUnionMembers.Value => _payload ?? DomainError.NullValue;
 
-    bool IUnionMembers.HasValue => _payload is not null;
+    bool IUnionMembers.HasValue => true;
 
     bool IUnionMembers.TryGetValue(out TValue value) => TryGetValue(out value);
 
@@ -135,9 +135,8 @@ public struct Result<TValue> : Result<TValue>.IUnionMembers, IEquatable<Result<T
     /// <summary>Case-aware pattern member: succeeds only for a failure result.</summary>
     public bool TryGetValue(out DomainError error)
     {
-        bool isFailure = !IsSuccess && _payload is DomainError;
-        error = isFailure ? (DomainError)_payload! : default!;
-        return isFailure;
+        error = IsFailure ? Error : default!;
+        return IsFailure;
     }
 
     public bool Equals(Result<TValue> other) =>

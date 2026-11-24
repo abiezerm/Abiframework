@@ -121,8 +121,20 @@ public class ResultCaseIdentityTests
         {
             DomainError => "error",
             object => "value",
-            null => "error"
+            null => "empty"
         };
+    }
+
+    [Fact]
+    public void DefaultResult_UnionMembersExposeNullValueFailure()
+    {
+        Result<int>.IUnionMembers result = default(Result<int>);
+
+        result.HasValue.Should().BeTrue();
+        result.Value.Should().BeSameAs(DomainError.NullValue);
+        result.TryGetValue(out DomainError error).Should().BeTrue();
+        error.Should().BeSameAs(DomainError.NullValue);
+        result.TryGetValue(out int _).Should().BeFalse();
     }
 
     [Fact]
